@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sort It Out: User Stories</title>
+<title>Sort It Out: Design Criteria</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -33,13 +33,13 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
 .score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
-.score-pips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; max-width: 260px; }
+.score-pips { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; max-width: 280px; }
 .pip { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; }
 .pip.correct   { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
 .pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
 .progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 52px; text-align: right; }
 
-/* FORMULA BAR */
+/* 4-QUESTION BAR */
 .formula-bar { background: var(--navy); padding: 10px 20px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .formula-plain { font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 400; font-style: italic; color: rgba(255,255,255,0.6); }
 .formula-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); padding: 3px 10px 2px; }
@@ -59,7 +59,13 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .col-desc { font-size: 13px; font-style: italic; line-height: 1.4; }
 .sort-col:first-child .col-desc { color: var(--mid-grey); }
 .sort-col:last-child  .col-desc { color: rgba(255,255,255,0.55); }
-.drop-zone { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 140px; background: var(--white); position: relative; }
+.col-flaw-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.flaw-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 8px 2px; border: 1.5px solid; }
+.flaw-tag.vague       { color: #b45309; border-color: #b45309; }
+.flaw-tag.untestable  { color: #1d4ed8; border-color: #1d4ed8; }
+.flaw-tag.unrealistic { color: #7c3aed; border-color: #7c3aed; }
+.flaw-tag.irrelevant  { color: #dc2626; border-color: #dc2626; }
+.drop-zone { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 140px; background: var(--white); position: relative; border-radius: 0 0 2px 2px; }
 .sort-col:last-child .drop-zone { background: #f5f4f0; }
 .drop-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .drop-empty-text { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #d4d0c8; }
@@ -72,9 +78,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .placed-card.correct   .result-icon { color: var(--correct); }
 .placed-card.incorrect .result-icon { color: var(--incorrect); }
 .placed-card .placed-id { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid-grey); display: block; margin-bottom: 5px; }
-.placed-card .placed-text { color: var(--navy); }
-.placed-card .placed-text strong { font-weight: 700; color: var(--pink); font-style: normal; }
-.placed-card .placed-text em { font-style: italic; font-weight: 600; color: var(--navy); }
+.placed-card .placed-text { color: var(--navy); font-style: italic; }
 @keyframes slideIn { from { opacity:0; transform:translateY(-10px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
 
 /* TOOLTIP */
@@ -83,8 +87,9 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .tooltip-box { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 250px; background: var(--navy); border: 2px solid var(--pink); padding: 10px 13px; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 500; font-style: normal; line-height: 1.55; color: rgba(255,255,255,0.85); pointer-events: none; opacity: 0; transition: opacity 0.18s; z-index: 10000; text-transform: none; letter-spacing: 0; }
 .tooltip-box::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--pink); }
 .tooltip-wrap:hover .tooltip-box { opacity: 1; }
+
 /* FLYING CARD */
-.flying-card { position: fixed; z-index: 10000; pointer-events: none; border-left: 5px solid; border-radius: 3px; padding: 12px 16px; font-family: 'Barlow', sans-serif; font-size: 14px; line-height: 1.5; color: var(--navy); will-change: transform; }
+.flying-card { position: fixed; z-index: 10000; pointer-events: none; border-left: 5px solid; border-radius: 3px; padding: 12px 16px; font-family: 'Barlow', sans-serif; font-size: 14px; font-style: italic; line-height: 1.5; color: var(--navy); will-change: transform; }
 .flying-card.accept { border-color: var(--accept); background: var(--accept-light); }
 .flying-card.reject { border-color: var(--reject); background: var(--reject-light); }
 @keyframes cardFly {
@@ -100,16 +105,16 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
            box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
 }
 
+/* CARD OVERLAY */
 .card-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.55); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
 .card-overlay.visible { opacity: 1; pointer-events: all; }
-.overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; max-width: 680px; padding: 24px; }
+.overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; max-width: 700px; padding: 24px; }
 .active-card { background: var(--white); border-top: 6px solid var(--pink); padding: 30px 36px 28px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.28); transform: scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; position: relative; }
 .card-overlay.visible .active-card { transform: scale(1); opacity: 1; }
-.active-card-id { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 10px; }
+.active-card-id { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 6px; }
+.active-card-product { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 12px; }
 .active-card-progress { position: absolute; top: 18px; right: 24px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); }
-.active-card-text { font-size: 19px; font-weight: 500; line-height: 1.6; color: var(--navy); }
-.active-card-text .kw { font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pink); }
-.active-card-text em { font-weight: 700; font-style: italic; color: var(--navy); }
+.active-card-text { font-size: 19px; font-weight: 500; font-style: italic; line-height: 1.6; color: var(--navy); }
 .active-card-prompt { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); margin-top: 18px; }
 .active-card.flash-correct   { animation: flashCorrect  0.45s ease; }
 .active-card.flash-incorrect { animation: flashIncorrect 0.45s ease; }
@@ -125,7 +130,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .choice-btn.reject { background: var(--reject-light); color: var(--reject); border-color: var(--reject-mid); }
 .choice-btn.reject:hover { background: var(--reject-mid); border-color: var(--reject); }
 .btn-sub { display: block; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; opacity: 0.72; margin-top: 6px; line-height: 1.35; }
-.btn-tooltip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 250px; background: var(--navy); border: 2px solid var(--pink); padding: 10px 13px; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.55; color: rgba(255,255,255,0.85); pointer-events: none; opacity: 0; transition: opacity 0.18s; z-index: 10000; text-transform: none; letter-spacing: 0; }
+.btn-tooltip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 260px; background: var(--navy); border: 2px solid var(--pink); padding: 10px 13px; font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.55; color: rgba(255,255,255,0.85); pointer-events: none; opacity: 0; transition: opacity 0.18s; z-index: 10000; text-transform: none; letter-spacing: 0; }
 .btn-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--pink); }
 .choice-btn:hover .btn-tooltip { opacity: 1; }
 
@@ -167,7 +172,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .wt-close { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.5); border: 2px solid rgba(255,255,255,0.2); padding: 8px 18px; cursor: pointer; border-radius: 2px; transition: color 0.15s, border-color 0.15s; }
 .wt-close:hover { color: var(--white); border-color: rgba(255,255,255,0.6); }
 
-.wt-progress-bar { height: 4px; background: rgba(255,255,255,0.1); flex-shrink: 0; position: relative; }
+.wt-progress-bar { height: 4px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
 .wt-progress-fill { height: 100%; background: var(--pink); transition: width 0.5s cubic-bezier(0.22,1,0.36,1); }
 
 .wt-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 36px; max-width: 820px; margin: 0 auto; width: 100%; }
@@ -186,44 +191,49 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 .intent-box-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
 .intent-box-text { font-size: 17px; font-weight: 500; line-height: 1.6; color: rgba(255,255,255,0.9); font-style: italic; }
 
-/* Flawed story box */
-.story-box { background: var(--white); padding: 20px 24px; position: relative; }
+/* Flawed criterion box */
+.story-box { background: var(--white); padding: 20px 24px; }
 .story-box-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 10px; }
 .story-box-text { font-size: 18px; font-style: italic; line-height: 1.6; color: var(--navy); }
-.story-box-text .kw { font-style: normal; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; text-transform: uppercase; font-size: 16px; letter-spacing: 0.08em; color: var(--pink); }
 .error-tag { display: inline-block; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); padding: 4px 10px 3px; margin-top: 14px; margin-right: 6px; }
 
-/* Breakdown row */
-.breakdown-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.breakdown-card { background: rgba(255,255,255,0.05); border-top: 4px solid; padding: 16px 18px; }
-.breakdown-card.who-card  { border-color: #f59e0b; }
-.breakdown-card.what-card { border-color: #60a5fa; }
-.breakdown-card.why-card  { border-color: #a78bfa; }
-.breakdown-card-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 8px; }
-.who-card  .breakdown-card-label { color: #f59e0b; }
-.what-card .breakdown-card-label { color: #60a5fa; }
-.why-card  .breakdown-card-label { color: #a78bfa; }
-.breakdown-card-problem { font-size: 13px; color: rgba(255,255,255,0.55); font-style: italic; margin-bottom: 8px; line-height: 1.45; }
-.breakdown-card-fix { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 600; line-height: 1.45; }
-.breakdown-card-fix::before { content: "→ "; color: var(--pink); font-weight: 800; }
+/* 4-question test grid */
+.four-q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.four-q-card { padding: 14px 16px; border-top: 4px solid; }
+.four-q-card.specific     { background: rgba(251,191,36,0.08);  border-color: #f59e0b; }
+.four-q-card.testable     { background: rgba(96,165,250,0.08);  border-color: #60a5fa; }
+.four-q-card.achievable   { background: rgba(167,139,250,0.08); border-color: #a78bfa; }
+.four-q-card.relevant     { background: rgba(52,211,153,0.08);  border-color: #34d399; }
+.four-q-label { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 5px; }
+.specific .four-q-label   { color: #f59e0b; }
+.testable .four-q-label   { color: #60a5fa; }
+.achievable .four-q-label { color: #a78bfa; }
+.relevant .four-q-label   { color: #34d399; }
+.four-q-question { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; margin-bottom: 6px; }
+.four-q-verdict { font-size: 13px; font-weight: 700; }
+.verdict-fail { color: #fca5a5; }
+.verdict-pass { color: #86efac; }
 
 /* Build steps */
 .build-steps { display: flex; flex-direction: column; gap: 10px; }
 .build-step-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; background: rgba(255,255,255,0.05); }
 .build-step-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; padding: 4px 10px 3px; flex-shrink: 0; margin-top: 1px; }
-.pill-who  { background: #f59e0b; color: var(--navy); }
-.pill-what { background: #60a5fa; color: var(--navy); }
-.pill-why  { background: #a78bfa; color: var(--navy); }
+.pill-specific   { background: #f59e0b; color: var(--navy); }
+.pill-testable   { background: #60a5fa; color: var(--navy); }
+.pill-achievable { background: #a78bfa; color: var(--navy); }
+.pill-relevant   { background: #34d399; color: var(--navy); }
+.pill-fix        { background: var(--pink); color: var(--white); }
 .build-step-q { font-size: 13px; color: rgba(255,255,255,0.5); font-style: italic; margin-bottom: 4px; }
 .build-step-a { font-size: 15px; color: var(--white); font-weight: 600; }
 
-/* Final story */
+/* Final criterion */
 .final-story-box { background: var(--white); padding: 28px 32px; border-top: 6px solid var(--accept); }
 .final-story-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accept); margin-bottom: 12px; }
 .final-story-text { font-size: 20px; font-style: italic; line-height: 1.65; color: var(--navy); }
-.final-story-text .kw { font-style: normal; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; text-transform: uppercase; font-size: 18px; letter-spacing: 0.08em; color: var(--pink); }
-.final-story-text em { font-weight: 800; font-style: italic; color: var(--navy); }
-.final-note { font-size: 14px; color: rgba(255,255,255,0.6); font-style: italic; margin-top: 4px; line-height: 1.5; }
+.final-note { font-size: 14px; color: rgba(255,255,255,0.6); font-style: italic; line-height: 1.5; }
+
+/* Comparison row */
+.compare-row { display: flex; flex-direction: column; gap: 10px; }
 
 /* Nav */
 .wt-nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 36px; border-top: 3px solid rgba(255,255,255,0.1); flex-shrink: 0; }
@@ -242,23 +252,22 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 <div class="placemat">
     <div class="mat-header">
         <div>
-            <p class="sheet-label">Activity 1 &mdash; User Stories</p>
+            <p class="sheet-label">Activity 1 &mdash; Design Criteria</p>
             <h1 class="sheet-title">Sort It Out</h1>
         </div>
         <div class="score-display">
             <span class="score-label">Score</span>
             <div class="score-pips" id="scorePips"></div>
-            <span class="progress-text" id="progressText">0 / 18</span>
+            <span class="progress-text" id="progressText">0 / 12</span>
         </div>
     </div>
 
     <div class="formula-bar">
-        <span class="formula-plain">As a</span>
-        <span class="formula-pill">WHO</span>
-        <span class="formula-plain">I want to</span>
-        <span class="formula-pill">WHAT</span>
-        <span class="formula-plain">so that</span>
-        <span class="formula-pill">WHY</span>
+        <span class="formula-plain">The 4-question test:</span>
+        <span class="formula-pill">Specific?</span>
+        <span class="formula-pill">Testable?</span>
+        <span class="formula-pill">Achievable?</span>
+        <span class="formula-pill">Relevant?</span>
     </div>
 
     <div class="columns-area">
@@ -266,7 +275,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
             <div class="col-top accept"></div>
             <div class="col-heading">
                 <p class="col-title accept">Accept</p>
-                <p class="col-desc">Specific WHO. Goal-oriented WHAT. Meaningful WHY that explains a real benefit.</p>
+                <p class="col-desc">Passes all four questions. You could run a clear test and get a strict yes or no answer.</p>
             </div>
             <div class="drop-zone" id="zone-accept">
                 <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
@@ -276,7 +285,17 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
             <div class="col-top reject"></div>
             <div class="col-heading">
                 <p class="col-title reject">Reject</p>
-                <p class="col-desc">Too generic, focuses on a feature rather than a goal, or has a <span class="tooltip-wrap"><span class="tooltip-trigger">circular benefit</span><span class="tooltip-box">A circular benefit just repeats the WHAT in different words. e.g. "I want to save my work so that it is saved." It tells you nothing about why it actually matters.</span></span> that doesn&rsquo;t explain anything.</p>
+                <p class="col-desc">Fails one or more questions. Could be
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(180,83,9,0.7);color:rgba(255,255,255,0.8);">too vague</span><span class="tooltip-box">Too vague means you can&rsquo;t measure it. &ldquo;Easy to carry&rdquo; or &ldquo;good quality&rdquo; mean different things to different people &mdash; there&rsquo;s no way to run a test and get a clear yes or no.</span></span>,
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(29,78,216,0.7);color:rgba(255,255,255,0.8);">untestable</span><span class="tooltip-box">Untestable means there&rsquo;s no practical way to verify it. &ldquo;It must look impressive&rdquo; can&rsquo;t be confirmed with a measurement, a count, or a direct observation.</span></span>,
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(124,58,237,0.7);color:rgba(255,255,255,0.8);">unrealistic</span><span class="tooltip-box">Unrealistic means it&rsquo;s technically or practically impossible given the context. Asking a student project to use carbon fibre or cost $0.50 to produce sets up the design to fail from the start.</span></span>, or
+                    <span class="tooltip-wrap"><span class="tooltip-trigger" style="border-bottom-color:rgba(220,38,38,0.7);color:rgba(255,255,255,0.8);">irrelevant</span><span class="tooltip-box">Irrelevant means the criterion has nothing to do with the product&rsquo;s actual purpose or the user&rsquo;s real needs. A survival whistle in a pencil case, for example, solves a problem nobody on the brief actually has.</span></span>.</p>
+                <div class="col-flaw-tags">
+                    <span class="flaw-tag vague">Too Vague</span>
+                    <span class="flaw-tag untestable">Untestable</span>
+                    <span class="flaw-tag unrealistic">Unrealistic</span>
+                    <span class="flaw-tag irrelevant">Irrelevant</span>
+                </div>
             </div>
             <div class="drop-zone" id="zone-reject">
                 <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
@@ -296,20 +315,21 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
     <div class="overlay-inner">
         <div class="active-card" id="activeCard">
             <div class="active-card-id" id="activeCardId">Card A</div>
-            <div class="active-card-progress" id="activeCardProgress">1 of 18</div>
+            <div class="active-card-progress" id="activeCardProgress">1 of 12</div>
+            <div class="active-card-product" id="activeCardProduct"></div>
             <p class="active-card-text" id="activeCardText"></p>
-            <p class="active-card-prompt">Accept or reject this user story?</p>
+            <p class="active-card-prompt">Does this criterion pass the 4-question test?</p>
         </div>
         <div class="choice-btns">
             <button class="choice-btn accept" onclick="choose('accept')">
                 Accept
-                <span class="btn-sub">Specific who, real goal, meaningful benefit</span>
-                <span class="btn-tooltip">A good user story has a <strong>specific WHO</strong> (not just "a user"), a <strong>goal-oriented WHAT</strong> (not a feature), and a <strong>WHY</strong> that explains a real benefit to their life.</span>
+                <span class="btn-sub">Specific, testable, achievable, relevant</span>
+                <span class="btn-tooltip">Accept if you could run a real test on this criterion and get a clear yes or no. It must have numbers or verifiable conditions &mdash; no vague adjectives.</span>
             </button>
             <button class="choice-btn reject" onclick="choose('reject')">
                 Reject
-                <span class="btn-sub">Generic, feature-led, or circular benefit</span>
-                <span class="btn-tooltip">Reject if the WHO is too vague (e.g. "a person"), the WHAT describes a feature instead of a goal, or the WHY just repeats the WHAT in different words.</span>
+                <span class="btn-sub">Vague, untestable, unrealistic, or irrelevant</span>
+                <span class="btn-tooltip">Reject if it uses words like &ldquo;good&rdquo;, &ldquo;nice&rdquo;, or &ldquo;impressive&rdquo; with no measurement, sets an impossible target, or has nothing to do with what the product actually needs to do.</span>
             </button>
         </div>
     </div>
@@ -333,7 +353,7 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
     <div class="wt-header">
         <div>
             <p class="wt-label">Fix It &mdash; Gallery Walk Walkthrough</p>
-            <p class="wt-title">Task A: Step by Step</p>
+            <p class="wt-title">Task A: School Water Bottle</p>
         </div>
         <button class="wt-close" onclick="closeWalkthrough()">Close &times;</button>
     </div>
@@ -343,157 +363,165 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 
     <div class="wt-body">
 
-        <!-- STEP 1: Design Intent -->
+        <!-- STEP 1 -->
         <div class="wt-step active" id="step-1">
             <p class="wt-step-label">Step 1 of 7</p>
             <h2 class="wt-step-heading">Start with the design intent</h2>
-            <p class="wt-step-body">Before writing a user story, you need to understand the real problem you&rsquo;re solving. The design intent tells you who is struggling and what the actual pain point is.</p>
+            <p class="wt-step-body">Before writing a design criterion, you need to understand the real problem. The design intent tells you who is affected and what they actually need.</p>
             <div class="intent-box">
-                <p class="intent-box-label">Design Intent</p>
-                <p class="intent-box-text">&ldquo;Students often miss deadlines because the &ldquo;Submit&rdquo; button is buried in sub-menus and hard to find when rushing.&rdquo;</p>
+                <p class="intent-box-label">Design Intent &mdash; Task A</p>
+                <p class="intent-box-text">&ldquo;Year 8 students are complaining that their current bottles are too bulky for their bags and strain their shoulders during the 20-minute walk to school.&rdquo;</p>
             </div>
-            <p class="wt-step-body">This tells us: the person is a <strong>student under time pressure</strong>, and the problem is that a critical button is <strong>hard to locate quickly</strong>. Hold onto this &mdash; it&rsquo;s our compass for building the story.</p>
+            <p class="wt-step-body">This tells us two things: the bottle needs to <strong>fit in a bag</strong> and be <strong>light enough to carry comfortably</strong> for 20 minutes. These are the properties we need to measure.</p>
         </div>
 
-        <!-- STEP 2: The flawed story -->
+        <!-- STEP 2 -->
         <div class="wt-step" id="step-2">
             <p class="wt-step-label">Step 2 of 7</p>
-            <h2 class="wt-step-heading">Read the flawed story</h2>
-            <p class="wt-step-body">Now look at the user story that was written for this intent. Something is off &mdash; can you spot it?</p>
+            <h2 class="wt-step-heading">Read the flawed criterion</h2>
+            <p class="wt-step-body">Now look at what was written. Can you spot why it would be impossible to use as a design target?</p>
             <div class="story-box">
-                <p class="story-box-label">Current User Story</p>
-                <p class="story-box-text">
-                    <span class="kw">As a</span> <em>user</em>, <span class="kw">I want</span> <em>a search bar</em> <span class="kw">so that</span> <em>I can search for things.</em>
-                </p>
+                <p class="story-box-label">Current Criterion</p>
+                <p class="story-box-text">&ldquo;The water bottle must be easy to carry and not too heavy.&rdquo;</p>
                 <div>
-                    <span class="error-tag">Generic WHO</span>
-                    <span class="error-tag">Feature-Led WHAT</span>
-                    <span class="error-tag">Circular WHY</span>
+                    <span class="error-tag">Too Vague</span>
                 </div>
             </div>
-            <p class="wt-step-body">Three problems at once. This story could apply to almost anyone building almost anything. It gives a designer <strong>nothing useful to work from</strong>.</p>
+            <p class="wt-step-body">&ldquo;Easy to carry&rdquo; and &ldquo;not too heavy&rdquo; are opinions, not measurements. Two different people would give two different answers about whether a bottle passes. <strong>A good criterion must give you a yes or no</strong>, no matter who is testing it.</p>
         </div>
 
-        <!-- STEP 3: Fix the WHO -->
+        <!-- STEP 3 -->
         <div class="wt-step" id="step-3">
             <p class="wt-step-label">Step 3 of 7</p>
-            <h2 class="wt-step-heading">Fix the WHO</h2>
-            <p class="wt-step-body">The WHO tells us exactly who will use this feature. The more specific it is, the better we can design for their real situation.</p>
-            <div class="breakdown-grid">
-                <div class="breakdown-card who-card" style="grid-column: 1 / -1;">
-                    <p class="breakdown-card-label">WHO &mdash; the problem</p>
-                    <p class="breakdown-card-problem">&ldquo;a user&rdquo; &mdash; This could be anyone. It tells us nothing about their context, pressure, or constraints.</p>
-                    <p class="breakdown-card-fix">Ask: Who exactly from the design intent is struggling? What is their specific situation?</p>
+            <h2 class="wt-step-heading">Apply the 4-question test</h2>
+            <p class="wt-step-body">Run the flawed criterion through each question to see exactly where it breaks down.</p>
+            <div class="four-q-grid">
+                <div class="four-q-card specific">
+                    <p class="four-q-label">Specific?</p>
+                    <p class="four-q-question">Does it name a precise property with a number or condition?</p>
+                    <p class="four-q-verdict verdict-fail">&#10007; No. &ldquo;Not too heavy&rdquo; is not a measurement.</p>
+                </div>
+                <div class="four-q-card testable">
+                    <p class="four-q-label">Testable?</p>
+                    <p class="four-q-question">Could you run a test and get a strict yes or no?</p>
+                    <p class="four-q-verdict verdict-fail">&#10007; No. &ldquo;Easy to carry&rdquo; depends on who you ask.</p>
+                </div>
+                <div class="four-q-card achievable">
+                    <p class="four-q-label">Achievable?</p>
+                    <p class="four-q-question">Is it realistic for a student project to deliver?</p>
+                    <p class="four-q-verdict verdict-pass">&#10003; Probably yes, once the target is defined.</p>
+                </div>
+                <div class="four-q-card relevant">
+                    <p class="four-q-label">Relevant?</p>
+                    <p class="four-q-question">Does it connect directly to the design intent?</p>
+                    <p class="four-q-verdict verdict-pass">&#10003; Yes &mdash; weight and portability are the core problem.</p>
                 </div>
             </div>
-            <div class="build-steps">
-                <div class="build-step-row">
-                    <span class="build-step-pill pill-who">WHO</span>
-                    <div>
-                        <p class="build-step-q">Who is the specific person in the design intent?</p>
-                        <p class="build-step-a">A student &mdash; and not just any student, but one who is rushing to submit before a deadline.</p>
-                    </div>
-                </div>
-            </div>
+            <p class="wt-step-body">Two questions pass, two fail. We need to rewrite the criterion so it passes all four.</p>
         </div>
 
-        <!-- STEP 4: Fix the WHAT -->
+        <!-- STEP 4 -->
         <div class="wt-step" id="step-4">
             <p class="wt-step-label">Step 4 of 7</p>
-            <h2 class="wt-step-heading">Fix the WHAT</h2>
-            <p class="wt-step-body">The WHAT should describe a <strong>goal or need</strong>, not a finished design solution. Saying &ldquo;a search bar&rdquo; locks the designer into one solution before they&rsquo;ve even started.</p>
-            <div class="breakdown-grid">
-                <div class="breakdown-card what-card" style="grid-column: 1 / -1;">
-                    <p class="breakdown-card-label">WHAT &mdash; the problem</p>
-                    <p class="breakdown-card-problem">&ldquo;a search bar&rdquo; &mdash; This is a feature, not a goal. What does the student actually need to <em>do</em>?</p>
-                    <p class="breakdown-card-fix">Ask: What is the functional goal? What are they trying to accomplish, not which UI element do they want?</p>
-                </div>
-            </div>
+            <h2 class="wt-step-heading">Fix &ldquo;not too heavy&rdquo;</h2>
+            <p class="wt-step-body">The phrase &ldquo;not too heavy&rdquo; is an opinion. To make it testable, we need to replace it with a number that comes from the design intent and reflects a real user need.</p>
             <div class="build-steps">
                 <div class="build-step-row">
-                    <span class="build-step-pill pill-what">WHAT</span>
+                    <span class="build-step-pill pill-specific">Specific</span>
                     <div>
-                        <p class="build-step-q">What does the student actually need to do?</p>
-                        <p class="build-step-a">Find the Submit button quickly &mdash; without digging through sub-menus while under pressure.</p>
+                        <p class="build-step-q">Who are we designing for, and what load are they already carrying?</p>
+                        <p class="build-step-a">Year 8 students carry up to 5kg of books daily and walk 20 minutes. Adding another heavy item strains their shoulders.</p>
+                    </div>
+                </div>
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-fix">Fix</span>
+                    <div>
+                        <p class="build-step-q">Replace the vague phrase with a measurable target</p>
+                        <p class="build-step-a">The bottle must weigh no more than 300g when empty.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 5: Fix the WHY -->
+        <!-- STEP 5 -->
         <div class="wt-step" id="step-5">
             <p class="wt-step-label">Step 5 of 7</p>
-            <h2 class="wt-step-heading">Fix the WHY</h2>
-            <p class="wt-step-body">The WHY must explain a <strong>real human benefit</strong> &mdash; something that actually changes the person&rsquo;s situation for the better. A circular WHY just repeats the WHAT in different words.</p>
-            <div class="breakdown-grid">
-                <div class="breakdown-card why-card" style="grid-column: 1 / -1;">
-                    <p class="breakdown-card-label">WHY &mdash; the problem</p>
-                    <p class="breakdown-card-problem">&ldquo;so that I can search for things&rdquo; &mdash; This is circular. It restates the want without explaining any benefit. Why does it <em>matter</em> that they can search?</p>
-                    <p class="breakdown-card-fix">Ask: What is the real cost if this problem isn&rsquo;t solved? What changes for the better if it is?</p>
-                </div>
-            </div>
+            <h2 class="wt-step-heading">Fix &ldquo;easy to carry&rdquo;</h2>
+            <p class="wt-step-body">&ldquo;Easy to carry&rdquo; relates to the bag fitting problem in the design intent. We can make this testable by specifying a physical dimension that can be measured.</p>
             <div class="build-steps">
                 <div class="build-step-row">
-                    <span class="build-step-pill pill-why">WHY</span>
+                    <span class="build-step-pill pill-testable">Testable</span>
                     <div>
-                        <p class="build-step-q">What happens if the Submit button stays hidden?</p>
-                        <p class="build-step-a">The student misses the deadline and panics. The benefit is being able to submit on time, without stress.</p>
+                        <p class="build-step-q">What does &ldquo;easy to carry in a bag&rdquo; actually mean physically?</p>
+                        <p class="build-step-a">The bottle must fit in the side pocket of a standard school bag without forcing the zip open or making the bag lopsided.</p>
+                    </div>
+                </div>
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-fix">Fix</span>
+                    <div>
+                        <p class="build-step-q">Turn that into a measurable dimension</p>
+                        <p class="build-step-a">The bottle must have a diameter of no more than 8cm so it fits in a standard school bag side pocket.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 6: Build it -->
+        <!-- STEP 6 -->
         <div class="wt-step" id="step-6">
             <p class="wt-step-label">Step 6 of 7</p>
             <h2 class="wt-step-heading">Assemble the pieces</h2>
-            <p class="wt-step-body">Now we have all three ingredients. Let&rsquo;s put them together using the formula.</p>
+            <p class="wt-step-body">We now have two specific, testable targets. A good criterion can combine multiple measurements as long as each one is clear and verifiable on its own.</p>
             <div class="build-steps">
                 <div class="build-step-row">
-                    <span class="build-step-pill pill-who">WHO</span>
+                    <span class="build-step-pill pill-specific">Specific</span>
                     <div>
-                        <p class="build-step-q">Specific person in a real situation</p>
-                        <p class="build-step-a">a student who is rushing to submit work before a deadline</p>
+                        <p class="build-step-q">Weight target</p>
+                        <p class="build-step-a">No more than 300g when empty</p>
                     </div>
                 </div>
                 <div class="build-step-row">
-                    <span class="build-step-pill pill-what">WHAT</span>
+                    <span class="build-step-pill pill-testable">Testable</span>
                     <div>
-                        <p class="build-step-q">Goal-oriented need, not a feature</p>
-                        <p class="build-step-a">find the Submit button from any screen without navigating sub-menus</p>
+                        <p class="build-step-q">Size target</p>
+                        <p class="build-step-a">Diameter no more than 8cm</p>
                     </div>
                 </div>
                 <div class="build-step-row">
-                    <span class="build-step-pill pill-why">WHY</span>
+                    <span class="build-step-pill pill-achievable">Achievable</span>
                     <div>
-                        <p class="build-step-q">Meaningful benefit that changes their situation</p>
-                        <p class="build-step-a">hand in on time without panicking</p>
+                        <p class="build-step-q">Is this realistic for a student project?</p>
+                        <p class="build-step-a">Yes &mdash; standard drink bottles already meet these dimensions, so the target is realistic.</p>
+                    </div>
+                </div>
+                <div class="build-step-row">
+                    <span class="build-step-pill pill-relevant">Relevant</span>
+                    <div>
+                        <p class="build-step-q">Does it directly address the design intent?</p>
+                        <p class="build-step-a">Yes &mdash; both measurements directly solve the &ldquo;too bulky and too heavy&rdquo; complaints.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 7: The improved story -->
+        <!-- STEP 7 -->
         <div class="wt-step" id="step-7">
             <p class="wt-step-label">Step 7 of 7</p>
-            <h2 class="wt-step-heading">The improved story</h2>
-            <p class="wt-step-body">Compare the two. The improved story gives a designer a clear picture of who they&rsquo;re designing for, what that person needs to accomplish, and why it matters.</p>
-            <div class="story-box" style="opacity:0.5; margin-bottom: 0;">
-                <p class="story-box-label">Original (Flawed)</p>
-                <p class="story-box-text" style="font-size:15px;">
-                    <span class="kw">As a</span> <em>user</em>, <span class="kw">I want</span> <em>a search bar</em> <span class="kw">so that</span> <em>I can search for things.</em>
-                </p>
+            <h2 class="wt-step-heading">The improved criterion</h2>
+            <p class="wt-step-body">Compare the two. The improved criterion gives a designer a clear, testable target. Anyone with a scale and a ruler could check whether a prototype passes.</p>
+            <div class="compare-row">
+                <div class="story-box" style="opacity:0.5;">
+                    <p class="story-box-label">Original (Flawed)</p>
+                    <p class="story-box-text" style="font-size:15px;">&ldquo;The water bottle must be easy to carry and not too heavy.&rdquo;</p>
+                </div>
+                <div class="final-story-box">
+                    <p class="final-story-label">&#10003;&nbsp; Improved Criterion</p>
+                    <p class="final-story-text">&ldquo;The bottle must weigh no more than 300g when empty and have a diameter of no more than 8cm so that it fits in the side pocket of a standard school bag.&rdquo;</p>
+                </div>
             </div>
-            <div class="final-story-box">
-                <p class="final-story-label">&#10003;&nbsp; Improved Story</p>
-                <p class="final-story-text">
-                    <span class="kw">As a</span> <em>student who is rushing to submit work before a deadline</em>, <span class="kw">I want to</span> <em>find the Submit button from any screen without navigating sub-menus</em> <span class="kw">so that</span> <em>I can hand in on time without panicking.</em>
-                </p>
-            </div>
-            <p class="final-note">Notice how the improved story opens multiple design possibilities &mdash; a persistent toolbar, a quick-access button, a shortcut &mdash; rather than locking in one solution before the thinking has even started.</p>
+            <p class="final-note">Notice how the improved criterion contains numbers. Anyone could pick up a bottle, put it on a scale and measure its diameter, and get a definitive pass or fail &mdash; no interpretation required.</p>
         </div>
 
-    </div><!-- end wt-body -->
+    </div>
 
     <div class="wt-nav">
         <span class="wt-step-counter" id="wtStepCounter">Step 1 of 7</span>
@@ -506,59 +534,60 @@ html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--
 
 <script>
 const CARDS = [
-    { id:'Card A', answer:'reject',
-      html:'<span class="kw">As a</span> <em>user</em>, <span class="kw">I want to</span> <em>log in</em> <span class="kw">so that</span> <em>I can access the app.</em>' },
-    { id:'Card B', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student who has been assigned a locker partner</em>, <span class="kw">I want to</span> <em>know when my partner is planning to use the locker</em> <span class="kw">so that</span> <em>we don&rsquo;t both try to access it at the same time and block the hallway.</em>' },
-    { id:'Card C', answer:'reject',
-      html:'<span class="kw">As a</span> <em>student</em>, <span class="kw">I want</span> <em>a search bar</em> <span class="kw">so that</span> <em>I can search for things.</em>' },
-    { id:'Card D', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student who has PE first period</em>, <span class="kw">I want to</span> <em>hang my heavy gym kit outside my locker</em> <span class="kw">so that</span> <em>it can dry and doesn&rsquo;t make my books smell.</em>' },
-    { id:'Card E', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student with back-to-back classes on different floors</em>, <span class="kw">I want to</span> <em>quickly see which books I need for the next two periods</em> <span class="kw">so that</span> <em>I don&rsquo;t have to keep returning to my locker.</em>' },
-    { id:'Card F', answer:'reject',
-      html:'<span class="kw">As a</span> <em>person</em>, <span class="kw">I want</span> <em>a cool design</em> <span class="kw">so that</span> <em>it looks cool.</em>' },
-    { id:'Card G', answer:'accept',
-      html:'<span class="kw">As a</span> <em>left-handed Year 7 student</em>, <span class="kw">I want to</span> <em>write notes quickly without smudging</em> <span class="kw">so that</span> <em>I can keep up during fast-paced lessons.</em>' },
-    { id:'Card H', answer:'reject',
-      html:'<span class="kw">As a</span> <em>student</em>, <span class="kw">I want to</span> <em>be happy</em> <span class="kw">so that</span> <em>I am not sad.</em>' },
-    { id:'Card I', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student who cycles to school in the rain</em>, <span class="kw">I want to</span> <em>know my laptop is protected by a waterproof seal</em> <span class="kw">so that</span> <em>it doesn&rsquo;t get damaged on my commute.</em>' },
-    { id:'Card J', answer:'reject',
-      html:'<span class="kw">As a</span> <em>user</em>, <span class="kw">I want</span> <em>buttons</em> <span class="kw">so that</span> <em>I can click them.</em>' },
-    { id:'Card K', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student moving from primary to secondary school</em>, <span class="kw">I want to</span> <em>visualise my new weekly routine</em> <span class="kw">so that</span> <em>I feel less anxious about being in the wrong place.</em>' },
-    { id:'Card L', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student who relies on the 4:15pm bus</em>, <span class="kw">I want to</span> <em>receive a 5-minute alert before the bus arrives</em> <span class="kw">so that</span> <em>I have time to pack up my locker and get to the stop.</em>' },
-    { id:'Card M', answer:'reject',
-      html:'<span class="kw">As a</span> <em>human</em>, <span class="kw">I want to</span> <em>use the app</em> <span class="kw">so that</span> <em>I am successful.</em>' },
-    { id:'Card N', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student with messy handwriting</em>, <span class="kw">I want to</span> <em>submit my assignments using a clean digital template</em> <span class="kw">so that</span> <em>teachers can easily read my work.</em>' },
-    { id:'Card O', answer:'reject',
-      html:'<span class="kw">As a</span> <em>teacher</em>, <span class="kw">I want to</span> <em>mute the chat</em> <span class="kw">so that</span> <em>it is muted.</em>' },
-    { id:'Card P', answer:'accept',
-      html:'<span class="kw">As a</span> <em>Year 8 student trying out for the swimming team</em>, <span class="kw">I want to</span> <em>track my lap times</em> <span class="kw">so that</span> <em>I can see if my training is working.</em>' },
-    { id:'Card Q', answer:'reject',
-      html:'<span class="kw">As a</span> <em>student</em>, <span class="kw">I want</span> <em>a notification</em> <span class="kw">so that</span> <em>I get notified.</em>' },
-    { id:'Card R', answer:'accept',
-      html:'<span class="kw">As a</span> <em>student who forgets their locker combination</em>, <span class="kw">I want to</span> <em>securely save it in my app</em> <span class="kw">so that</span> <em>I don&rsquo;t have to find a teacher to bolt-cut my lock.</em>' },
+    { id:'Card A', product:'Water Filter',
+      answer:'accept',
+      text:'"The filter must remove at least 99% of visible particles in a standard tap-water sample, verified by comparing before and after photos."' },
+    { id:'Card B', product:'Desk Lamp',
+      answer:'reject',
+      text:'"The lamp must give off a nice amount of light that helps students focus."' },
+    { id:'Card C', product:'Phone Stand',
+      answer:'accept',
+      text:'"The stand must hold a phone at between 60\u00b0 and 75\u00b0 without tipping when placed on a flat surface and nudged with one finger."' },
+    { id:'Card D', product:'Reusable Bag',
+      answer:'reject',
+      text:'"The bag must be eco-friendly, look modern, and be the kind of thing people want to be seen using."' },
+    { id:'Card E', product:'Backpack',
+      answer:'reject',
+      text:'"The backpack must be made from a good quality material that lasts a long time."' },
+    { id:'Card F', product:'School Water Bottle',
+      answer:'accept',
+      text:'"The bottle must weigh less than 450g when empty."' },
+    { id:'Card G', product:'Chair',
+      answer:'reject',
+      text:'"The chair must be made from carbon fibre and cost less than $5 to produce."' },
+    { id:'Card H', product:'App',
+      answer:'reject',
+      text:'"The app must have an AI built in so it is really impressive."' },
+    { id:'Card I', product:'Homework Planner',
+      answer:'reject',
+      text:'"The homework planner must include an underwater-proof seal on all pages."' },
+    { id:'Card J', product:'School Water Bottle',
+      answer:'accept',
+      text:'"It must fit in a standard school bag side pocket (\u22648cm diameter) and open with one hand in under 3 seconds."' },
+    { id:'Card K', product:'Pencil Case',
+      answer:'reject',
+      text:'"Must include a built-in compass and survival whistle for wilderness emergencies."' },
+    { id:'Card L', product:'Tablet Case',
+      answer:'accept',
+      text:'"Must survive a 1-metre drop onto a hard tile floor without the tablet screen cracking."' },
 ];
 
 let queue = [], currentIndex = 0, score = 0, answered = 0, busy = false;
 
-const overlay      = document.getElementById('cardOverlay');
-const activeCard   = document.getElementById('activeCard');
-const activeId     = document.getElementById('activeCardId');
+const overlay        = document.getElementById('cardOverlay');
+const activeCard     = document.getElementById('activeCard');
+const activeId       = document.getElementById('activeCardId');
+const activeProduct  = document.getElementById('activeCardProduct');
 const activeProgress = document.getElementById('activeCardProgress');
-const activeText   = document.getElementById('activeCardText');
-const endOverlay   = document.getElementById('endOverlay');
-const endScore     = document.getElementById('endScore');
-const endMsg       = document.getElementById('endMessage');
-const pipsEl       = document.getElementById('scorePips');
-const progressEl   = document.getElementById('progressText');
-const statusDot    = document.getElementById('statusDot');
-const statusText   = document.getElementById('statusText');
-const startBtn     = document.getElementById('startBtn');
+const activeText     = document.getElementById('activeCardText');
+const endOverlay     = document.getElementById('endOverlay');
+const endScore       = document.getElementById('endScore');
+const endMsg         = document.getElementById('endMessage');
+const pipsEl         = document.getElementById('scorePips');
+const progressEl     = document.getElementById('progressText');
+const statusDot      = document.getElementById('statusDot');
+const statusText     = document.getElementById('statusText');
+const startBtn       = document.getElementById('startBtn');
 
 function buildPips() {
     pipsEl.innerHTML = '';
@@ -576,7 +605,7 @@ function startActivity() {
     updateProgress();
     startBtn.disabled = true;
     statusDot.className = 'status-dot';
-    statusText.textContent = 'Read the story, then choose Accept or Reject';
+    statusText.textContent = 'Read the criterion, then apply the 4-question test';
     ['accept','reject'].forEach(cat => {
         const z = document.getElementById('zone-' + cat);
         z.querySelectorAll('.placed-card').forEach(c => c.remove());
@@ -588,8 +617,9 @@ function startActivity() {
 function showCard() {
     const card = queue[currentIndex];
     activeId.textContent = card.id;
+    activeProduct.textContent = card.product;
     activeProgress.textContent = (currentIndex + 1) + ' of ' + queue.length;
-    activeText.innerHTML = card.html;
+    activeText.textContent = card.text;
     activeCard.classList.remove('flash-correct','flash-incorrect');
     overlay.classList.add('visible');
 }
@@ -619,8 +649,10 @@ function choose(category) {
         const zone = document.getElementById('zone-' + category);
         const zoneRect = zone.getBoundingClientRect();
 
+        // Delta from source to landing spot
         const dx = (zoneRect.left + 12) - srcRect.left;
         const dy = (zoneRect.top + 10) - srcRect.top;
+        // Rotate toward the target column
         const rot = dx > 0 ? '9deg' : '-9deg';
 
         const flyer = document.createElement('div');
@@ -661,7 +693,7 @@ function placeCard(card, category, correct) {
     zone.querySelector('.drop-empty').style.display = 'none';
     const el = document.createElement('div');
     el.className = 'placed-card ' + category + (correct ? ' correct' : ' incorrect');
-    el.innerHTML = `<span class="placed-id">${card.id}</span><span class="result-icon">${correct ? '&#10003;' : '&#10007;'}</span><span class="placed-text">${card.html}</span>`;
+    el.innerHTML = `<span class="placed-id">${card.id} &mdash; ${card.product}</span><span class="result-icon">${correct ? '&#10003;' : '&#10007;'}</span><span class="placed-text">${card.text}</span>`;
     zone.appendChild(el);
 }
 
@@ -673,10 +705,10 @@ function showEnd() {
     const total = queue.length;
     endScore.innerHTML = score + '<span class="end-denom"> / ' + total + '</span>';
     const pct = score / total;
-    if      (pct === 1)  endMsg.textContent = 'Perfect score! You can spot a strong user story from a flawed one with confidence.';
-    else if (pct >= 0.8) endMsg.textContent = 'Great work! Review any incorrect cards in the columns to see where you can sharpen your thinking.';
-    else if (pct >= 0.6) endMsg.textContent = 'Good effort. Pay close attention to circular WHYs and generic WHOs \u2014 those are the trickiest to spot.';
-    else                 endMsg.textContent = 'Keep going! Try the walkthrough below to see how each part of a strong user story is constructed.';
+    if      (pct === 1)  endMsg.textContent = 'Perfect score! You have a strong eye for what makes a criterion specific and testable.';
+    else if (pct >= 0.8) endMsg.textContent = 'Great work! Review the incorrect cards to see where your thinking can sharpen up.';
+    else if (pct >= 0.6) endMsg.textContent = 'Good effort. Pay close attention to vague adjectives like \u201cgood\u201d, \u201cnice\u201d, and \u201cimpressive\u201d \u2014 those are the trickiest to catch.';
+    else                 endMsg.textContent = 'Keep going! Try the walkthrough below to see how each question in the 4-question test is applied.';
     endOverlay.classList.add('visible');
 }
 
@@ -685,13 +717,11 @@ function restartActivity() {
     startBtn.disabled = false;
     statusDot.className = 'status-dot idle';
     statusText.textContent = 'Press Start to begin again';
-    progressEl.textContent = '0 / 18';
+    progressEl.textContent = '0 / 12';
     buildPips();
 }
 
-/* ============================
-   WALKTHROUGH LOGIC
-   ============================ */
+/* WALKTHROUGH */
 let wtCurrentStep = 1;
 const WT_TOTAL = 7;
 
@@ -722,12 +752,8 @@ function renderWtStep() {
     }
 }
 
-function wtNext() {
-    if (wtCurrentStep < WT_TOTAL) { wtCurrentStep++; renderWtStep(); }
-}
-function wtPrev() {
-    if (wtCurrentStep > 1) { wtCurrentStep--; renderWtStep(); }
-}
+function wtNext() { if (wtCurrentStep < WT_TOTAL) { wtCurrentStep++; renderWtStep(); } }
+function wtPrev() { if (wtCurrentStep > 1) { wtCurrentStep--; renderWtStep(); } }
 
 buildPips();
 </script>
