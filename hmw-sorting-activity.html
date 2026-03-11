@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sort It Out: HMW Statements</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --navy: #1b1f45;
+    --pink: #ea008a;
+    --broad: #c47a00;
+    --broad-light: #fff7e6;
+    --broad-mid: #fde8a0;
+    --right: #1a6e6e;
+    --right-light: #e6f7f5;
+    --right-mid: #a0ddd8;
+    --narrow: #a02020;
+    --narrow-light: #fdf0f0;
+    --narrow-mid: #f5b8b8;
+    --white: #ffffff;
+    --off-white: #f5f4f0;
+    --light-grey: #e2e0da;
+    --mid-grey: #9a9a9a;
+    --correct: #16a34a;
+    --incorrect: #dc2626;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Barlow', sans-serif; background: var(--off-white); color: var(--navy); overflow-x: hidden; }
+
+.placemat { min-height: 100vh; display: grid; grid-template-rows: auto auto 1fr auto; padding: 32px 36px 28px; gap: 0; }
+
+.mat-header { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 14px; border-bottom: 4px solid var(--navy); margin-bottom: 20px; gap: 20px; flex-wrap: wrap; }
+.sheet-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mid-grey); margin-bottom: 2px; }
+.sheet-title { font-family: 'Barlow Condensed', sans-serif; font-size: 38px; font-weight: 900; text-transform: uppercase; color: var(--navy); letter-spacing: 0.01em; line-height: 1; }
+.sheet-title span { color: var(--pink); }
+
+.score-display { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.score-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid-grey); }
+.score-pips { display: flex; gap: 5px; align-items: center; }
+.pip { width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid var(--light-grey); background: transparent; transition: background 0.35s, border-color 0.35s, transform 0.25s; }
+.pip.correct  { background: var(--correct);   border-color: var(--correct);   transform: scale(1.2); }
+.pip.incorrect { background: var(--incorrect); border-color: var(--incorrect); transform: scale(1.2); }
+.progress-text { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 800; color: var(--navy); min-width: 48px; text-align: right; }
+
+.columns-area { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; align-items: stretch; }
+.sort-col { border-radius: 3px; overflow: hidden; display: flex; flex-direction: column; border: 2px solid var(--light-grey); }
+.col-top { height: 6px; flex-shrink: 0; }
+.col-top.broad  { background: var(--broad); }
+.col-top.right  { background: var(--right); }
+.col-top.narrow { background: var(--narrow); }
+.col-heading { padding: 14px 16px 10px; background: var(--white); border-bottom: 1.5px solid var(--light-grey); }
+.col-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
+.col-title.broad  { color: var(--broad); }
+.col-title.right  { color: var(--right); }
+.col-title.narrow { color: var(--narrow); }
+.col-desc { font-size: 13px; color: var(--mid-grey); font-style: italic; line-height: 1.4; }
+.drop-zone { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 120px; background: var(--white); position: relative; }
+.drop-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.drop-empty-text { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #d4d0c8; }
+
+.placed-card { border-radius: 3px; padding: 10px 32px 10px 13px; border-left: 5px solid; font-size: 14px; line-height: 1.5; position: relative; animation: slideIn 0.35s cubic-bezier(0.22,1,0.36,1); }
+.placed-card.broad  { border-color: var(--broad);  background: var(--broad-light); }
+.placed-card.right  { border-color: var(--right);  background: var(--right-light); }
+.placed-card.narrow { border-color: var(--narrow); background: var(--narrow-light); }
+.placed-card .result-icon { position: absolute; top: 9px; right: 10px; font-size: 14px; font-weight: 800; line-height: 1; }
+.placed-card.correct  .result-icon { color: var(--correct); }
+.placed-card.incorrect .result-icon { color: var(--incorrect); }
+.placed-card .placed-id { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mid-grey); display: block; margin-bottom: 3px; }
+.placed-card .placed-text { color: var(--navy); }
+.placed-card .placed-text strong { font-weight: 700; }
+@keyframes slideIn { from { opacity:0; transform:translateY(-10px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+/* OVERLAY */
+.card-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.55); backdrop-filter: blur(3px); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.card-overlay.visible { opacity: 1; pointer-events: all; }
+.overlay-inner { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; max-width: 660px; padding: 24px; }
+
+.active-card { background: var(--white); border-top: 6px solid var(--pink); padding: 30px 36px 28px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.28); transform: scale(0.88); opacity: 0; transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s; position: relative; }
+.card-overlay.visible .active-card { transform: scale(1); opacity: 1; }
+.active-card-id { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 10px; }
+.active-card-progress { position: absolute; top: 18px; right: 24px; font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); }
+.active-card-text { font-size: 21px; font-weight: 500; line-height: 1.55; color: var(--navy); }
+.active-card-text strong { font-weight: 800; }
+.active-card-prompt { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid-grey); margin-top: 18px; }
+.active-card.flash-correct  { animation: flashCorrect  0.45s ease; }
+.active-card.flash-incorrect { animation: flashIncorrect 0.45s ease; }
+@keyframes flashCorrect  { 0%{background:var(--white)} 35%{background:#dcfce7} 100%{background:var(--white)} }
+@keyframes flashIncorrect{ 0%{background:var(--white)} 35%{background:#fee2e2} 100%{background:var(--white)} }
+
+.choice-btns { display: flex; gap: 12px; width: 100%; justify-content: center; }
+.choice-btn { flex: 1; max-width: 200px; padding: 18px 10px 14px; border: 3px solid transparent; border-radius: 3px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s; }
+.choice-btn:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); }
+.choice-btn:active { transform: translateY(0); }
+.choice-btn.broad  { background: var(--broad-light);  color: var(--broad);  border-color: var(--broad-mid); }
+.choice-btn.broad:hover  { background: var(--broad-mid);  border-color: var(--broad); }
+.choice-btn.right  { background: var(--right-light);  color: var(--right);  border-color: var(--right-mid); }
+.choice-btn.right:hover  { background: var(--right-mid);  border-color: var(--right); }
+.choice-btn.narrow { background: var(--narrow-light); color: var(--narrow); border-color: var(--narrow-mid); }
+.choice-btn.narrow:hover { background: var(--narrow-mid); border-color: var(--narrow); }
+.btn-sub { display: block; font-family: 'Barlow', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; opacity: 0.72; margin-top: 5px; line-height: 1.35; }
+
+/* END */
+.end-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(27,31,69,0.7); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.35s; }
+.end-overlay.visible { opacity: 1; pointer-events: all; }
+.end-panel { background: var(--white); border-top: 8px solid var(--pink); padding: 48px 52px; max-width: 460px; width: 90%; text-align: center; box-shadow: 0 28px 70px rgba(0,0,0,0.32); transform: scale(0.9); opacity: 0; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1) 0.1s, opacity 0.35s 0.1s; }
+.end-overlay.visible .end-panel { transform: scale(1); opacity: 1; }
+.end-label { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pink); margin-bottom: 8px; }
+.end-score { font-family: 'Barlow Condensed', sans-serif; font-size: 80px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 8px; }
+.end-denom { font-size: 36px; color: var(--mid-grey); }
+.end-message { font-size: 17px; line-height: 1.55; color: var(--navy); margin-bottom: 28px; }
+.restart-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--navy); color: var(--white); border: none; padding: 14px 36px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; }
+.restart-btn:hover { background: var(--pink); transform: translateY(-2px); }
+
+/* STATUS BAR */
+.status-bar { border-top: 2px solid var(--light-grey); margin-top: 16px; padding-top: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); animation: pulse 1.6s ease-in-out infinite; flex-shrink: 0; }
+.status-dot.done { background: var(--correct); animation: none; }
+.status-dot.idle { background: var(--mid-grey); animation: none; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.status-text { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid-grey); }
+.start-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; background: var(--pink); color: var(--white); border: none; padding: 10px 28px; cursor: pointer; border-radius: 2px; transition: background 0.15s, transform 0.12s; margin-left: auto; }
+.start-btn:hover { background: #c4006e; transform: translateY(-2px); }
+.start-btn:disabled { background: var(--mid-grey); cursor: default; transform: none; }
+</style>
+</head>
+<body>
+
+<div class="placemat">
+    <div class="mat-header">
+        <div>
+            <p class="sheet-label">Design Thinking &mdash; HMW Statements</p>
+            <h1 class="sheet-title">Sort It <span>Out</span></h1>
+        </div>
+        <div class="score-display">
+            <span class="score-label">Score</span>
+            <div class="score-pips" id="scorePips"></div>
+            <span class="progress-text" id="progressText">0 / 9</span>
+        </div>
+    </div>
+
+    <div class="columns-area">
+        <div class="sort-col">
+            <div class="col-top broad"></div>
+            <div class="col-heading">
+                <p class="col-title broad">Too Broad</p>
+                <p class="col-desc">Vague action. The outcome is impossible to measure.</p>
+            </div>
+            <div class="drop-zone" id="zone-broad">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top right"></div>
+            <div class="col-heading">
+                <p class="col-title right">Just Right</p>
+                <p class="col-desc">Specific enough to design from. Genuine human outcome.</p>
+            </div>
+            <div class="drop-zone" id="zone-right">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+        <div class="sort-col">
+            <div class="col-top narrow"></div>
+            <div class="col-heading">
+                <p class="col-title narrow">Too Narrow</p>
+                <p class="col-desc">Already a finished design decision. Feature outcome, not a human change.</p>
+            </div>
+            <div class="drop-zone" id="zone-narrow">
+                <div class="drop-empty"><span class="drop-empty-text">Cards will appear here</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-dot idle" id="statusDot"></div>
+        <span class="status-text" id="statusText">Press Start to begin</span>
+        <button class="start-btn" id="startBtn" onclick="startActivity()">Start Activity</button>
+    </div>
+</div>
+
+<!-- ACTIVE CARD OVERLAY -->
+<div class="card-overlay" id="cardOverlay">
+    <div class="overlay-inner">
+        <div class="active-card" id="activeCard">
+            <div class="active-card-id" id="activeCardId">Card A</div>
+            <div class="active-card-progress" id="activeCardProgress">1 of 9</div>
+            <p class="active-card-text" id="activeCardText"></p>
+            <p class="active-card-prompt">Where does this statement belong?</p>
+        </div>
+        <div class="choice-btns">
+            <button class="choice-btn broad"  onclick="choose('broad')">
+                Too Broad
+                <span class="btn-sub">Vague action, unmeasurable outcome</span>
+            </button>
+            <button class="choice-btn right"  onclick="choose('right')">
+                Just Right
+                <span class="btn-sub">Specific action, genuine human change</span>
+            </button>
+            <button class="choice-btn narrow" onclick="choose('narrow')">
+                Too Narrow
+                <span class="btn-sub">Already a finished design decision</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- END OVERLAY -->
+<div class="end-overlay" id="endOverlay">
+    <div class="end-panel">
+        <p class="end-label">Activity Complete</p>
+        <div class="end-score" id="endScore"></div>
+        <p class="end-message" id="endMessage"></p>
+        <button class="restart-btn" onclick="restartActivity()">Try Again</button>
+    </div>
+</div>
+
+<script>
+const CARDS = [
+    { id:'Card A', answer:'broad',  html:'<strong>How might we</strong> make food better <strong>so that</strong> society is healthier?' },
+    { id:'Card B', answer:'narrow', html:'<strong>How might we</strong> show a traffic-light icon next to each menu item <strong>so that</strong> users see it?' },
+    { id:'Card C', answer:'right',  html:'<strong>How might we</strong> help students spot hidden sugar in everyday snacks <strong>so that</strong> they feel confident reading food labels?' },
+    { id:'Card D', answer:'broad',  html:'<strong>How might we</strong> fix the global food system <strong>so that</strong> nobody goes hungry?' },
+    { id:'Card E', answer:'narrow', html:'<strong>How might we</strong> put a calorie counter in the top-right corner of the home screen <strong>so that</strong> the number appears?' },
+    { id:'Card F', answer:'right',  html:'<strong>How might we</strong> make it easy to compare the sugar content of drinks <strong>so that</strong> students can make a more informed choice when they are thirsty?' },
+    { id:'Card G', answer:'broad',  html:'<strong>How might we</strong> solve obesity <strong>so that</strong> everyone lives longer?' },
+    { id:'Card H', answer:'narrow', html:'<strong>How might we</strong> display a green tick on foods with less than 5g of sugar <strong>so that</strong> the tick appears on screen?' },
+    { id:'Card I', answer:'right',  html:'<strong>How might we</strong> make trying a new vegetable feel low-risk <strong>so that</strong> students are more willing to experiment with healthy foods?' },
+];
+
+let queue = [], currentIndex = 0, score = 0, answered = 0, busy = false;
+
+const overlay    = document.getElementById('cardOverlay');
+const activeCard = document.getElementById('activeCard');
+const activeId   = document.getElementById('activeCardId');
+const activeProgress = document.getElementById('activeCardProgress');
+const activeText = document.getElementById('activeCardText');
+const endOverlay = document.getElementById('endOverlay');
+const endScore   = document.getElementById('endScore');
+const endMsg     = document.getElementById('endMessage');
+const pipsEl     = document.getElementById('scorePips');
+const progressEl = document.getElementById('progressText');
+const statusDot  = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const startBtn   = document.getElementById('startBtn');
+
+function buildPips() {
+    pipsEl.innerHTML = '';
+    CARDS.forEach(() => {
+        const p = document.createElement('div');
+        p.className = 'pip';
+        pipsEl.appendChild(p);
+    });
+}
+
+function startActivity() {
+    queue = [...CARDS].sort(() => Math.random() - 0.5);
+    currentIndex = 0; score = 0; answered = 0; busy = false;
+    buildPips();
+    updateProgress();
+    startBtn.disabled = true;
+    statusDot.className = 'status-dot';
+    statusText.textContent = 'Read the card, then choose a category';
+    ['broad','right','narrow'].forEach(cat => {
+        const z = document.getElementById('zone-' + cat);
+        z.querySelectorAll('.placed-card').forEach(c => c.remove());
+        z.querySelector('.drop-empty').style.display = '';
+    });
+    showCard();
+}
+
+function showCard() {
+    const card = queue[currentIndex];
+    activeId.textContent = card.id;
+    activeProgress.textContent = (currentIndex + 1) + ' of ' + queue.length;
+    activeText.innerHTML = card.html;
+    activeCard.classList.remove('flash-correct','flash-incorrect');
+    overlay.classList.add('visible');
+}
+
+function choose(category) {
+    if (busy) return;
+    busy = true;
+    const card = queue[currentIndex];
+    const correct = card.answer === category;
+
+    void activeCard.offsetWidth;
+    activeCard.classList.add(correct ? 'flash-correct' : 'flash-incorrect');
+
+    const pip = pipsEl.children[currentIndex];
+    pip.classList.add(correct ? 'correct' : 'incorrect');
+
+    if (correct) score++;
+    answered++;
+    updateProgress();
+
+    setTimeout(() => {
+        overlay.classList.remove('visible');
+        setTimeout(() => {
+            placeCard(card, category, correct);
+            currentIndex++;
+            busy = false;
+            if (currentIndex < queue.length) {
+                setTimeout(showCard, 200);
+            } else {
+                statusDot.className = 'status-dot done';
+                statusText.textContent = 'All done!';
+                setTimeout(showEnd, 450);
+            }
+        }, 130);
+    }, 520);
+}
+
+function placeCard(card, category, correct) {
+    const zone = document.getElementById('zone-' + category);
+    zone.querySelector('.drop-empty').style.display = 'none';
+    const el = document.createElement('div');
+    el.className = 'placed-card ' + category + (correct ? ' correct' : ' incorrect');
+    el.innerHTML = `<span class="placed-id">${card.id}</span><span class="result-icon">${correct ? '&#10003;' : '&#10007;'}</span><span class="placed-text">${card.html}</span>`;
+    zone.appendChild(el);
+}
+
+function updateProgress() {
+    progressEl.textContent = score + ' / ' + answered;
+}
+
+function showEnd() {
+    const total = queue.length;
+    endScore.innerHTML = score + '<span class="end-denom"> / ' + total + '</span>';
+    const pct = score / total;
+    if      (pct === 1)  endMsg.textContent = 'Perfect score! You have a strong grasp of what makes a well-scoped HMW statement.';
+    else if (pct >= 0.7) endMsg.textContent = 'Great work! Review any red cards in the columns to see where you can sharpen your thinking.';
+    else if (pct >= 0.5) endMsg.textContent = 'Good effort. Take another look at the definitions for Too Narrow and Too Broad, then give it another go.';
+    else                 endMsg.textContent = 'Keep going! Re-read the three definitions carefully and have another try.';
+    endOverlay.classList.add('visible');
+}
+
+function restartActivity() {
+    endOverlay.classList.remove('visible');
+    startBtn.disabled = false;
+    statusDot.className = 'status-dot idle';
+    statusText.textContent = 'Press Start to begin again';
+    progressEl.textContent = '0 / 9';
+    buildPips();
+}
+
+buildPips();
+</script>
+</body>
+</html>
