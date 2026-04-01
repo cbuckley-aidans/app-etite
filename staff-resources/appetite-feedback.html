@@ -17,7 +17,7 @@
             --amber: #b45309;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { font-size: 17.5px; }
+        html { font-size: 21.875px; }
         body {
             font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
             color: var(--navy); background: var(--off-white);
@@ -473,6 +473,14 @@
         .markbook-score-denom { font-size: 12px; color: var(--mid-grey); }
         .markbook-comment { padding: 14px; font-size: 12px; line-height: 1.85; color: var(--navy); }
         .markbook-no-comment { padding: 14px; font-size: 12px; color: var(--mid-grey); font-style: italic; }
+        .markbook-reminder {
+            padding: 7px 14px;
+            background: #eef0f8; border-top: 1px solid #c8cde8;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--navy); opacity: 0.7;
+        }
         .markbook-footer {
             padding: 10px 14px; border-top: 1px solid var(--light-grey);
             background: var(--off-white); display: flex; gap: 8px; justify-content: flex-end;
@@ -565,7 +573,7 @@
             </div>
             <div class="note-box">
                 <p class="note-label">Expected format</p>
-                <p>Each row is one student in "Last, First" format followed by 15 mark values (1-9). Paste directly from Excel. Adjectives are determined automatically from the overall percentage.</p>
+                <p>Each row is one student in "Last, First" format followed by 15 mark values (1-9). Paste directly from Excel.</p>
             </div>
             <div class="ruled-card">
                 <div class="ruled-card-inner">
@@ -801,13 +809,23 @@ function getGroup(gid) {
 // GRADE FROM MARKS (percentage)
 // ═══════════════════════════════════════
 
+function computeMarkbookTotals(marks) {
+    const ku  = ((marks.q0 ?? 9) + (marks.q1 ?? 9) + (marks.q2 ?? 9)) / 3;
+    const pp1 = ['q4_1','q4_2','q4_3','q4_4','q4_5'].reduce((s,id) => s + (marks[id] ?? 9), 0) / 5;
+    const pp2 = ((marks.q5a ?? 9) + (marks.q5b ?? 9)) / 2;
+    const pp3 = ((marks.q6 ?? 9) + (marks.q7 ?? 9)) / 2;
+    const pp4 = ((marks.q8a ?? 9) + (marks.q8b ?? 9)) / 2;
+    const pp  = pp1 + pp2 + pp3 + pp4;
+    return { ku, pp, total: ku + pp };
+}
+
 function gradeFromMarks(marks) {
-    const total = SKILL_IDS.reduce((s, id) => s + (marks[id] ?? 9), 0);
-    const pct = total / (SKILL_IDS.length * 9) * 100;
+    const { total } = computeMarkbookTotals(marks);
+    const pct = total / 45 * 100;
     if (pct >= 80) return 'A';
-    if (pct >= 64) return 'B';
-    if (pct >= 48) return 'C';
-    if (pct >= 30) return 'D';
+    if (pct >= 65) return 'B';
+    if (pct >= 50) return 'C';
+    if (pct >= 35) return 'D';
     return 'E';
 }
 
@@ -871,6 +889,18 @@ function buildComment(name, marks, praiseText, improvementSelections) {
     if (praiseText) parts.push(praiseText);
     if (improvements.length) parts.push(buildImprovements(improvements));
     parts.push(closing);
+    return parts.join(' ');
+}
+
+function buildBulkPreview(name, marks, praiseText, improvementSelections) {
+    const allImprovements = IMP_GROUPS.filter(g => g.needsImprovement(marks));
+    const improvements = (improvementSelections instanceof Set)
+        ? allImprovements.filter((_, i) => improvementSelections.has(i)).map(g => getGroup(g.id).improvement).filter(Boolean)
+        : allImprovements.map(g => getGroup(g.id).improvement).filter(Boolean);
+    const parts = [];
+    if (praiseText) parts.push(praiseText);
+    if (improvements.length) parts.push(buildImprovements(improvements));
+    if (!parts.length) parts.push('No praise or improvement statements generated for this student.');
     return parts.join(' ');
 }
 
@@ -1301,8 +1331,9 @@ function renderBulkPreview() {
                 <div class="bulk-imp-options" id="bulk-imp-${i}" data-allimps='${JSON.stringify(allImps.map(g=>({id:g.id,label:g.label})))}'>${impChips}</div>
             </div>` : '';
 
-        // Store base comment
+        // Show only praise/improvement in card; store full comment for markbooks
         const baseComment = buildComment(student.firstName, student.marks, null, bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null);
+        const basePreview = buildBulkPreview(student.firstName, student.marks, null, bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null);
         bulkComments[student.firstName.toLowerCase()] = baseComment;
 
         card.innerHTML = `
@@ -1312,9 +1343,10 @@ function renderBulkPreview() {
             ${impPickerHtml}
             <div class="bulk-praise-wrap">
                 <span class="bulk-praise-wrap-label">Praise highlight (optional)</span>
-                <div class="bulk-praise-options" id="bulk-praise-${i}" data-available='${JSON.stringify(available)}'>${chips}</div>
+                <div class="bulk-praise-options" id="bulk-praise-${i}" data-available='${JSON.stringify(available).replace(/'/g, "&#39;")}'>${chips}</div>
             </div>
-            <div class="comment-card-body" id="card-body-${i}">${baseComment}</div>
+            <div class="comment-card-body" id="card-body-${i}">${basePreview}</div>
+            <div class="markbook-reminder">&#9432;&nbsp; Full personalised comment available in the Markbooks tab.</div>
             <div class="comment-card-footer">
                 <button class="action-btn" id="card-copy-${i}" onclick="copyCard(${i})">&#10064;&nbsp; Copy</button>
             </div>`;
@@ -1341,10 +1373,10 @@ function updateBulkCardComment(studentIdx) {
     const available = container ? JSON.parse(container.dataset.available || '[]') : [];
     const praiseText = bulkPraiseSelections[studentIdx] !== undefined ? available[bulkPraiseSelections[studentIdx]]?.text : null;
     const impSel = bulkImprovementSelections[studentIdx] instanceof Set ? bulkImprovementSelections[studentIdx] : null;
-    const comment = buildComment(student.firstName, student.marks, praiseText, impSel);
-    bulkComments[student.firstName.toLowerCase()] = comment;
+    bulkComments[student.firstName.toLowerCase()] = buildComment(student.firstName, student.marks, praiseText, impSel);
     const bodyEl = document.getElementById(`card-body-${studentIdx}`);
-    if (bodyEl) bodyEl.textContent = comment;
+    if (bodyEl) bodyEl.textContent = buildBulkPreview(student.firstName, student.marks, praiseText, impSel);
+    if (markbookStudents.length) renderMarkbooks();
 }
 
 function selectBulkPraise(studentIdx, localPraiseIdx) {
@@ -1370,7 +1402,7 @@ function getBulkComment(i) {
     const available = container ? JSON.parse(container.dataset.available || '[]') : [];
     const praiseText = bulkPraiseSelections[i] !== undefined ? available[bulkPraiseSelections[i]]?.text : null;
     const impSel = bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null;
-    return buildComment(student.firstName, student.marks, praiseText, impSel);
+    return buildBulkPreview(student.firstName, student.marks, praiseText, impSel);
 }
 
 function copyCard(i) {
@@ -1438,8 +1470,9 @@ function renderMarkbooks() {
     markbookStudents.forEach((student, i) => {
         const card = document.createElement('div');
         card.className = 'markbook-card';
-        const commentHtml = student.comment
-            ? `<div class="markbook-comment" id="mb-comment-${i}">${student.comment}</div>`
+        const liveComment = bulkComments[student.firstName.toLowerCase()] || null;
+        const commentHtml = liveComment
+            ? `<div class="markbook-comment" id="mb-comment-${i}">${liveComment}</div>`
             : `<div class="markbook-no-comment">No bulk import comment found for ${student.firstName}. Run Bulk Import first.</div>`;
 
         card.innerHTML = `
@@ -1461,7 +1494,7 @@ function renderMarkbooks() {
             ${commentHtml}
             <div class="markbook-footer">
                 <button class="action-btn sm" id="mb-scores-copy-${i}" onclick="copyMbScores(${i})">&#10064;&nbsp; Copy Scores</button>
-                ${student.comment ? `<button class="action-btn sm" id="mb-comment-copy-${i}" onclick="copyMbComment(${i})">&#10064;&nbsp; Copy Comment</button>` : ''}
+                ${liveComment ? `<button class="action-btn sm" id="mb-comment-copy-${i}" onclick="copyMbComment(${i})">&#10064;&nbsp; Copy Comment</button>` : ''}
             </div>`;
         cardsEl.appendChild(card);
     });
