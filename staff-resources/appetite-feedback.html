@@ -384,6 +384,57 @@
         .config-panel { display: none; margin-bottom: 16px; }
         .config-panel.open { display: block; }
 
+        /* IMPROVEMENT PICKER (single) */
+        .imp-option {
+            display: flex; align-items: flex-start;
+            gap: 12px; padding: 12px 16px;
+            border-bottom: 1px solid var(--light-grey);
+            cursor: pointer; transition: background 0.1s;
+        }
+        .imp-option:last-child { border-bottom: none; }
+        .imp-option:hover { background: var(--off-white); }
+        .imp-option.selected { background: #fff0f7; border-left: 4px solid var(--pink); padding-left: 12px; }
+        .imp-checkbox {
+            width: 18px; height: 18px; flex-shrink: 0; margin-top: 3px;
+            border: 2px solid var(--light-grey); background: var(--white);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.1s;
+        }
+        .imp-option.selected .imp-checkbox { background: var(--pink); border-color: var(--pink); }
+        .imp-checkmark { font-size: 11px; color: var(--white); opacity: 0; line-height: 1; }
+        .imp-option.selected .imp-checkmark { opacity: 1; }
+        .imp-lbl {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--navy); margin-bottom: 2px;
+        }
+        .imp-txt { font-size: 12px; color: var(--navy); line-height: 1.5; }
+
+        /* IMPROVEMENT CHIPS (bulk) */
+        .bulk-imp-wrap {
+            border-top: 1px solid var(--light-grey);
+            background: #fff5f9; padding: 10px 14px;
+        }
+        .bulk-imp-wrap-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--navy); margin-bottom: 8px; display: block;
+        }
+        .bulk-imp-options { display: flex; flex-wrap: wrap; gap: 6px; }
+        .bulk-imp-chip {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 4px 10px;
+            border: 1.5px solid var(--light-grey);
+            background: var(--white); color: var(--mid-grey);
+            cursor: pointer; transition: all 0.1s;
+        }
+        .bulk-imp-chip:hover { border-color: var(--pink); color: var(--pink); }
+        .bulk-imp-chip.active { background: var(--pink); color: var(--white); border-color: var(--pink); }
+
         /* MARKBOOKS */
         .markbook-card {
             border-top: 3px solid var(--navy);
@@ -475,6 +526,20 @@
             </div>
             <div class="ruled-card" style="margin-bottom:16px;">
                 <table class="skills-table" id="skills-table"></table>
+            </div>
+
+            <div id="improvement-section" style="display:none;">
+                <div class="section-head">
+                    <span class="section-label">Step 02c</span>
+                    <h2 class="section-title">Select Improvements</h2>
+                </div>
+                <div class="note-box" style="border-left-color:var(--pink);">
+                    <p class="note-label" style="color:var(--pink);">More than 3 improvements</p>
+                    <p>Select the most important improvements to include. All are selected by default.</p>
+                </div>
+                <div class="ruled-card" style="margin-bottom:16px;">
+                    <div id="improvement-options"></div>
+                </div>
             </div>
 
             <div id="praise-section" style="display:none;">
@@ -700,8 +765,10 @@ let currentMode = 'single';
 let singleMarks = {};
 let singlePraiseIdx = null;
 let singlePraiseOptions = [];
+let singleImprovementSelections = null; // null = auto (<=3); Set = manual picker active
 let bulkStudents = [];
 let bulkPraiseSelections = {};
+let bulkImprovementSelections = {}; // studentIdx -> Set of selected improvement indices
 let bulkComments = {};   // firstName -> comment string, used by markbooks
 let markbookStudents = [];
 
@@ -776,7 +843,7 @@ function buildImprovements(items) {
     return text;
 }
 
-function buildComment(name, marks, praiseText) {
+function buildComment(name, marks, praiseText, improvementSelections) {
     const grade = gradeFromMarks(marks);
     const gd = gradeData[grade];
     const opening = 'This term, we explored the interfaces of existing apps, explored and manipulated spreadsheet survey data, looked at how digital interfaces influence healthy eating choices, and created wireframe designs that support better food choices for students.';
@@ -794,10 +861,10 @@ function buildComment(name, marks, praiseText) {
         achievement = `${name}, you are working towards the required standard for this assessment, and with further effort and engagement, there is clear room for growth.`;
     }
 
-    const improvements = IMP_GROUPS
-        .filter(g => g.needsImprovement(marks))
-        .map(g => getGroup(g.id).improvement)
-        .filter(Boolean);
+    const allImprovements = IMP_GROUPS.filter(g => g.needsImprovement(marks));
+    const improvements = (improvementSelections instanceof Set)
+        ? allImprovements.filter((_, i) => improvementSelections.has(i)).map(g => getGroup(g.id).improvement).filter(Boolean)
+        : allImprovements.map(g => getGroup(g.id).improvement).filter(Boolean);
 
     const closing = `Overall, ${gd.article} ${gd.closing} effort and result.`;
     const parts = [opening, achievement];
@@ -1020,6 +1087,49 @@ function restoreSingleMarkInputs() {
 // PRAISE (SINGLE)
 // ═══════════════════════════════════════
 
+function buildSingleImprovementOptions() {
+    const available = IMP_GROUPS.filter(g => g.needsImprovement(singleMarks));
+    const section = document.getElementById('improvement-section');
+
+    if (available.length <= 3) {
+        section.style.display = 'none';
+        singleImprovementSelections = null;
+        return;
+    }
+
+    section.style.display = 'block';
+    // Initialise all selected if first time showing
+    if (!(singleImprovementSelections instanceof Set)) {
+        singleImprovementSelections = new Set(available.map((_, i) => i));
+    }
+
+    const container = document.getElementById('improvement-options');
+    container.innerHTML = '';
+    available.forEach((grp, i) => {
+        const cur = getGroup(grp.id);
+        const isSelected = singleImprovementSelections.has(i);
+        const div = document.createElement('div');
+        div.className = 'imp-option' + (isSelected ? ' selected' : '');
+        div.innerHTML = `
+            <div class="imp-checkbox"><span class="imp-checkmark">&#10003;</span></div>
+            <div>
+                <p class="imp-lbl">${grp.label}</p>
+                <p class="imp-txt">To improve, ${cur.improvement}.</p>
+            </div>`;
+        div.addEventListener('click', () => {
+            if (singleImprovementSelections.has(i)) {
+                singleImprovementSelections.delete(i);
+                div.classList.remove('selected');
+            } else {
+                singleImprovementSelections.add(i);
+                div.classList.add('selected');
+            }
+            generate();
+        });
+        container.appendChild(div);
+    });
+}
+
 function buildSinglePraiseOptions() {
     const container = document.getElementById('praise-options');
     container.innerHTML = '';
@@ -1087,6 +1197,7 @@ function clearMarks() {
     SKILL_IDS.forEach(id => { singleMarks[id] = 9; });
     document.getElementById('paste-input').value = '';
     restoreSingleMarkInputs();
+    buildSingleImprovementOptions();
     buildSinglePraiseOptions();
     generate();
 }
@@ -1099,12 +1210,13 @@ function generate() {
     const name = document.getElementById('student-name').value.trim();
     const box = document.getElementById('output-box');
     const copyBtn = document.getElementById('copy-btn');
+    buildSingleImprovementOptions();
     if (!name) {
         box.innerHTML = '<span class="output-placeholder">Enter a student name and marks to generate a comment.</span>';
         copyBtn.disabled = true; return;
     }
     const praiseText = singlePraiseIdx !== null ? singlePraiseOptions[singlePraiseIdx]?.text : null;
-    box.textContent = buildComment(name, singleMarks, praiseText);
+    box.textContent = buildComment(name, singleMarks, praiseText, singleImprovementSelections);
     copyBtn.disabled = false;
 }
 
@@ -1153,6 +1265,7 @@ function renderBulkPreview() {
     const cardsEl = document.getElementById('bulk-cards');
     const copyAllBtn = document.getElementById('copy-all-btn');
     bulkPraiseSelections = {};
+    bulkImprovementSelections = {};
     bulkComments = {};
 
     if (!bulkStudents.length) {
@@ -1172,14 +1285,31 @@ function renderBulkPreview() {
         const card = document.createElement('div');
         card.className = 'comment-card';
 
+        // Improvement picker for >3 improvements
+        const allImps = IMP_GROUPS.filter(g => g.needsImprovement(student.marks));
+        if (allImps.length > 3 && !(bulkImprovementSelections[i] instanceof Set)) {
+            bulkImprovementSelections[i] = new Set(allImps.map((_, idx) => idx));
+        }
+        const impChips = allImps.length > 3
+            ? allImps.map((grp, pi) =>
+                `<button class="bulk-imp-chip active" data-ipi="${pi}" onclick="selectBulkImprovement(${i},${pi})">${grp.label}</button>`
+              ).join('')
+            : '';
+        const impPickerHtml = allImps.length > 3 ? `
+            <div class="bulk-imp-wrap">
+                <span class="bulk-imp-wrap-label">More than 3 improvements -- select the most important</span>
+                <div class="bulk-imp-options" id="bulk-imp-${i}" data-allimps='${JSON.stringify(allImps.map(g=>({id:g.id,label:g.label})))}'>${impChips}</div>
+            </div>` : '';
+
         // Store base comment
-        const baseComment = buildComment(student.firstName, student.marks, null);
+        const baseComment = buildComment(student.firstName, student.marks, null, bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null);
         bulkComments[student.firstName.toLowerCase()] = baseComment;
 
         card.innerHTML = `
             <div class="comment-card-header">
                 <span class="comment-card-name">${student.firstName}</span>
             </div>
+            ${impPickerHtml}
             <div class="bulk-praise-wrap">
                 <span class="bulk-praise-wrap-label">Praise highlight (optional)</span>
                 <div class="bulk-praise-options" id="bulk-praise-${i}" data-available='${JSON.stringify(available)}'>${chips}</div>
@@ -1190,6 +1320,31 @@ function renderBulkPreview() {
             </div>`;
         cardsEl.appendChild(card);
     });
+}
+
+function selectBulkImprovement(studentIdx, localIdx) {
+    const sel = bulkImprovementSelections[studentIdx];
+    if (!(sel instanceof Set)) return;
+    if (sel.has(localIdx)) { sel.delete(localIdx); } else { sel.add(localIdx); }
+    const container = document.getElementById(`bulk-imp-${studentIdx}`);
+    if (container) {
+        container.querySelectorAll('.bulk-imp-chip').forEach(chip => {
+            chip.classList.toggle('active', sel.has(parseInt(chip.dataset.ipi)));
+        });
+    }
+    updateBulkCardComment(studentIdx);
+}
+
+function updateBulkCardComment(studentIdx) {
+    const student = bulkStudents[studentIdx];
+    const container = document.getElementById(`bulk-praise-${studentIdx}`);
+    const available = container ? JSON.parse(container.dataset.available || '[]') : [];
+    const praiseText = bulkPraiseSelections[studentIdx] !== undefined ? available[bulkPraiseSelections[studentIdx]]?.text : null;
+    const impSel = bulkImprovementSelections[studentIdx] instanceof Set ? bulkImprovementSelections[studentIdx] : null;
+    const comment = buildComment(student.firstName, student.marks, praiseText, impSel);
+    bulkComments[student.firstName.toLowerCase()] = comment;
+    const bodyEl = document.getElementById(`card-body-${studentIdx}`);
+    if (bodyEl) bodyEl.textContent = comment;
 }
 
 function selectBulkPraise(studentIdx, localPraiseIdx) {
@@ -1206,15 +1361,7 @@ function selectBulkPraise(studentIdx, localPraiseIdx) {
         chip.classList.toggle('active', bulkPraiseSelections[studentIdx] === ci);
     });
 
-    const praiseText = bulkPraiseSelections[studentIdx] !== undefined
-        ? available[bulkPraiseSelections[studentIdx]]?.text : null;
-    const comment = buildComment(bulkStudents[studentIdx].firstName, bulkStudents[studentIdx].marks, praiseText);
-
-    // Keep bulkComments in sync with current selection
-    bulkComments[bulkStudents[studentIdx].firstName.toLowerCase()] = comment;
-
-    const bodyEl = document.getElementById(`card-body-${studentIdx}`);
-    if (bodyEl) bodyEl.textContent = comment;
+    updateBulkCardComment(studentIdx);
 }
 
 function getBulkComment(i) {
@@ -1222,7 +1369,8 @@ function getBulkComment(i) {
     const container = document.getElementById(`bulk-praise-${i}`);
     const available = container ? JSON.parse(container.dataset.available || '[]') : [];
     const praiseText = bulkPraiseSelections[i] !== undefined ? available[bulkPraiseSelections[i]]?.text : null;
-    return buildComment(student.firstName, student.marks, praiseText);
+    const impSel = bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null;
+    return buildComment(student.firstName, student.marks, praiseText, impSel);
 }
 
 function copyCard(i) {
