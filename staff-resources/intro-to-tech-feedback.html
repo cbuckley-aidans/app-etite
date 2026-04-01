@@ -1402,6 +1402,7 @@ function updateBulkCardComment(studentIdx) {
     bulkComments[student.firstName.toLowerCase()] = buildComment(student.firstName, student.marks, praiseText, impSel);
     const bodyEl = document.getElementById(`card-body-${studentIdx}`);
     if (bodyEl) bodyEl.textContent = buildBulkPreview(student.firstName, student.marks, praiseText, impSel);
+    if (markbookStudents.length) renderMarkbooks();
 }
 
 function selectBulkPraise(studentIdx, localPraiseIdx) {
@@ -1503,8 +1504,9 @@ function renderMarkbooks() {
     markbookStudents.forEach((student, i) => {
         const card = document.createElement('div');
         card.className = 'markbook-card';
-        const commentHtml = student.comment
-            ? `<div class="markbook-comment" id="mb-comment-${i}">${student.comment}</div>`
+        const liveComment = bulkComments[student.firstName.toLowerCase()] || null;
+        const commentHtml = liveComment
+            ? `<div class="markbook-comment" id="mb-comment-${i}">${liveComment}</div>`
             : `<div class="markbook-no-comment">No bulk import comment found for ${student.firstName}. Run Bulk Import first.</div>`;
 
         card.innerHTML = `
@@ -1526,7 +1528,7 @@ function renderMarkbooks() {
             ${commentHtml}
             <div class="markbook-footer">
                 <button class="action-btn sm" id="mb-scores-copy-${i}" onclick="copyMbScores(${i})">&#10064;&nbsp; Copy Scores</button>
-                ${student.comment ? `<button class="action-btn sm" id="mb-comment-copy-${i}" onclick="copyMbComment(${i})">&#10064;&nbsp; Copy Comment</button>` : ''}
+                ${liveComment ? `<button class="action-btn sm" id="mb-comment-copy-${i}" onclick="copyMbComment(${i})">&#10064;&nbsp; Copy Comment</button>` : ''}
             </div>`;
         cardsEl.appendChild(card);
     });
