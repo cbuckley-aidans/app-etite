@@ -1091,7 +1091,7 @@ function buildSingleImprovementOptions() {
     const available = IMP_GROUPS.filter(g => g.needsImprovement(singleMarks));
     const section = document.getElementById('improvement-section');
 
-    if (available.length <= 3) {
+    if (available.length < 3) {
         section.style.display = 'none';
         singleImprovementSelections = null;
         return;
@@ -1287,7 +1287,7 @@ function renderBulkPreview() {
 
         // Improvement picker for >3 improvements
         const allImps = IMP_GROUPS.filter(g => g.needsImprovement(student.marks));
-        if (allImps.length > 3 && !(bulkImprovementSelections[i] instanceof Set)) {
+        if (allImps.length >= 3 && !(bulkImprovementSelections[i] instanceof Set)) {
             bulkImprovementSelections[i] = new Set(allImps.map((_, idx) => idx));
         }
         const impChips = allImps.length > 3
@@ -1295,7 +1295,7 @@ function renderBulkPreview() {
                 `<button class="bulk-imp-chip active" data-ipi="${pi}" onclick="selectBulkImprovement(${i},${pi})">${grp.label}</button>`
               ).join('')
             : '';
-        const impPickerHtml = allImps.length > 3 ? `
+        const impPickerHtml = allImps.length >= 3 ? `
             <div class="bulk-imp-wrap">
                 <span class="bulk-imp-wrap-label">More than 3 improvements -- select the most important</span>
                 <div class="bulk-imp-options" id="bulk-imp-${i}" data-allimps='${JSON.stringify(allImps.map(g=>({id:g.id,label:g.label})))}'>${impChips}</div>
