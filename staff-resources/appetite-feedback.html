@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App-etite Feedback Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #1b1f45;
+            --pink: #ea008a;
+            --white: #ffffff;
+            --off-white: #f5f5f5;
+            --light-grey: #e8e8e8;
+            --mid-grey: #9a9a9a;
+            --green: #1a7a4a;
+            --amber: #b45309;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 17.5px; }
+        body {
+            font-family: 'Barlow', Helvetica Neue, Helvetica, Arial, sans-serif;
+            color: var(--navy); background: var(--off-white);
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden; line-height: 1.5;
+        }
+
+        /* HEADER */
+        .app-header {
+            background: var(--navy);
+            padding: 18px 30px 0 30px;
+            display: flex; align-items: flex-end;
+            justify-content: space-between; flex-shrink: 0;
+        }
+        .app-header-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 5px;
+        }
+        .app-header-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 44px; font-weight: 900;
+            color: var(--white); line-height: 1;
+            letter-spacing: -0.01em; text-transform: uppercase;
+        }
+        .header-accent { height: 5px; background: var(--pink); flex-shrink: 0; }
+
+        /* MODE STRIP */
+        .mode-strip {
+            background: var(--white);
+            border-bottom: 2px solid var(--light-grey);
+            display: flex; flex-shrink: 0; padding: 0 22px;
+        }
+        .mode-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--mid-grey); background: none; border: none;
+            padding: 11px 16px; cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px; transition: all 0.15s;
+        }
+        .mode-btn:hover { color: var(--navy); }
+        .mode-btn.active { color: var(--navy); border-bottom-color: var(--pink); }
+
+        /* BODY */
+        .app-body {
+            flex: 1; display: grid;
+            grid-template-columns: 45% 55%; overflow: hidden;
+        }
+        .left-panel {
+            overflow-y: auto; padding: 22px 22px 30px;
+            border-right: 2px solid var(--light-grey);
+        }
+        .right-panel { overflow-y: auto; background: var(--white); padding: 22px 22px 30px; }
+
+        /* SECTION HEAD */
+        .section-head {
+            display: flex; align-items: baseline;
+            gap: 12px; margin: 22px 0 14px;
+            padding-bottom: 10px; border-bottom: 2.5px solid var(--navy);
+        }
+        .section-head:first-child { margin-top: 0; }
+        .section-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--pink); white-space: nowrap;
+        }
+        .section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            color: var(--navy); text-transform: uppercase;
+            letter-spacing: 0.01em; line-height: 1;
+        }
+
+        /* RULED CARD */
+        .ruled-card {
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            background: var(--white); margin-bottom: 16px;
+        }
+        .ruled-card-inner { padding: 18px; }
+
+        /* FIELD LABEL */
+        .field-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--navy); display: block; margin-bottom: 7px;
+        }
+
+        /* TEXT INPUT */
+        .text-input {
+            font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 500;
+            padding: 10px 12px;
+            border: 1.5px solid var(--light-grey); border-top: 2.5px solid var(--navy);
+            width: 100%; color: var(--navy); outline: none;
+            background: var(--white); transition: border-color 0.15s;
+        }
+        .text-input:focus { border-color: var(--pink); border-top-color: var(--pink); }
+        .text-input::placeholder { color: var(--mid-grey); font-weight: 400; }
+        textarea.text-input { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+        /* TWO COL */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* GRADE BUTTONS */
+        .grade-row { display: flex; gap: 8px; }
+        .grade-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900;
+            width: 48px; height: 48px;
+            border: 2px solid var(--light-grey);
+            background: var(--white); color: var(--mid-grey);
+            cursor: pointer; transition: all 0.1s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .grade-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .grade-btn.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+        /* MARK INPUT */
+        .mark-input {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px; font-weight: 900;
+            width: 56px; height: 38px;
+            border: 2px solid var(--light-grey);
+            border-top: 2.5px solid var(--navy);
+            text-align: center; color: var(--navy);
+            background: var(--white); outline: none;
+            -moz-appearance: textfield; transition: border-color 0.15s;
+        }
+        .mark-input::-webkit-inner-spin-button,
+        .mark-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+        .mark-input:focus { border-color: var(--pink); border-top-color: var(--pink); }
+        .mark-input.grade-a { background: var(--navy); color: var(--white); border-color: var(--navy); }
+        .mark-input.grade-b { background: #2d5fa6; color: var(--white); border-color: #2d5fa6; }
+        .mark-input.grade-c { background: #d97706; color: var(--white); border-color: #d97706; }
+        .mark-input.grade-d { background: #c2410c; color: var(--white); border-color: #c2410c; }
+        .mark-input.grade-e { background: #991b1b; color: var(--white); border-color: #991b1b; }
+
+        /* SKILLS TABLE */
+        .skills-table { width: 100%; border-collapse: collapse; }
+        .skills-table thead tr { background: var(--navy); }
+        .skills-table th {
+            padding: 9px 12px; text-align: left;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--white); border: none;
+        }
+        .skills-table th.center { text-align: center; }
+        .skills-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--light-grey);
+            font-size: 12px; vertical-align: middle;
+        }
+        .skills-table td.center { text-align: center; }
+        .skills-table tbody tr:last-child > td { border-bottom: none; }
+        .skill-name { font-weight: 700; font-size: 12px; }
+        .skill-sub { font-size: 11px; color: var(--mid-grey); font-weight: 400; display: block; }
+        .group-header-row td {
+            background: var(--navy); padding: 6px 12px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: rgba(255,255,255,0.7);
+        }
+        .group-note { font-size: 10px; color: var(--mid-grey); font-style: italic; }
+
+        /* EDIT OVERRIDE BUTTON */
+        .edit-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            background: none; border: 1.5px solid var(--light-grey);
+            color: var(--mid-grey); padding: 4px 9px;
+            cursor: pointer; transition: all 0.1s; white-space: nowrap;
+        }
+        .edit-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .edit-btn.has-override { border-color: var(--amber); color: var(--amber); }
+
+        /* OVERRIDE EXPAND */
+        .override-row { display: none; }
+        .override-row.open { display: table-row; }
+        .override-expand {
+            padding: 14px 14px 14px 16px;
+            background: #fffbf5; border-left: 4px solid var(--amber);
+        }
+        .override-expand .ov-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--amber); display: block; margin-bottom: 5px;
+        }
+        .override-textarea {
+            font-family: 'Barlow', sans-serif; font-size: 12px; line-height: 1.5;
+            width: 100%; padding: 8px 10px;
+            border: 1.5px solid #f0d090; border-top: 2px solid var(--amber);
+            outline: none; resize: vertical; min-height: 58px;
+            background: var(--white); color: var(--navy); margin-bottom: 10px;
+        }
+        .override-actions { display: flex; gap: 8px; }
+        .save-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            background: var(--amber); color: var(--white); border: none; padding: 7px 16px; cursor: pointer;
+        }
+        .save-btn:hover { background: #92400e; }
+        .reset-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            background: none; color: var(--mid-grey);
+            border: 1.5px solid var(--light-grey); padding: 7px 16px; cursor: pointer;
+        }
+        .reset-btn:hover { color: var(--navy); border-color: var(--navy); }
+
+        /* NOTE BOX */
+        .note-box {
+            border-left: 4px solid var(--navy);
+            background: var(--off-white); padding: 11px 14px; margin-bottom: 16px;
+        }
+        .note-box .note-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--navy); margin-bottom: 4px;
+        }
+        .note-box p { font-size: 12px; line-height: 1.5; color: var(--navy); }
+
+        /* PASTE ROW */
+        .paste-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 16px; }
+        .paste-row .text-input { flex: 1; }
+
+        /* ACTION BUTTONS */
+        .action-btn {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            background: var(--navy); color: var(--white);
+            border: none; padding: 11px 22px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: background 0.15s; white-space: nowrap;
+        }
+        .action-btn:hover { background: var(--pink); }
+        .action-btn.copied { background: var(--green); }
+        .action-btn:disabled { background: var(--mid-grey); cursor: default; }
+        .action-btn.secondary {
+            background: var(--off-white); color: var(--navy);
+            border: 1.5px solid var(--light-grey);
+        }
+        .action-btn.secondary:hover { background: var(--light-grey); }
+        .action-btn.sm {
+            font-size: 12px; padding: 7px 14px;
+        }
+
+        /* PRAISE OPTIONS */
+        .praise-option {
+            display: flex; align-items: flex-start;
+            gap: 12px; padding: 12px 16px;
+            border-bottom: 1px solid var(--light-grey);
+            cursor: pointer; transition: background 0.1s;
+        }
+        .praise-option:last-child { border-bottom: none; }
+        .praise-option:hover { background: var(--off-white); }
+        .praise-option.selected { background: #eef0f8; border-left: 4px solid var(--navy); padding-left: 12px; }
+        .praise-radio {
+            width: 18px; height: 18px; border: 2px solid var(--light-grey); border-radius: 50%;
+            flex-shrink: 0; margin-top: 3px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.1s;
+        }
+        .praise-option.selected .praise-radio { border-color: var(--navy); background: var(--navy); }
+        .praise-radio-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--white); opacity: 0; transition: opacity 0.1s; }
+        .praise-option.selected .praise-radio-dot { opacity: 1; }
+        .praise-lbl {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 2px;
+        }
+        .praise-txt { font-size: 12px; color: var(--navy); line-height: 1.5; }
+
+        /* BULK PRAISE CHIPS */
+        .bulk-praise-wrap {
+            border-top: 1px solid var(--light-grey);
+            background: var(--off-white); padding: 10px 14px;
+        }
+        .bulk-praise-wrap-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--pink); margin-bottom: 8px; display: block;
+        }
+        .bulk-praise-options { display: flex; flex-wrap: wrap; gap: 6px; }
+        .bulk-praise-chip {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            padding: 4px 10px;
+            border: 1.5px solid var(--light-grey);
+            background: var(--white); color: var(--mid-grey);
+            cursor: pointer; transition: all 0.1s;
+        }
+        .bulk-praise-chip:hover { border-color: var(--navy); color: var(--navy); }
+        .bulk-praise-chip.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+        /* SINGLE PREVIEW */
+        .output-box {
+            border-left: 4px solid var(--pink);
+            background: var(--off-white); padding: 16px 18px; margin-bottom: 14px;
+            font-size: 13px; line-height: 1.85; color: var(--navy); min-height: 100px;
+        }
+        .output-placeholder { color: var(--mid-grey); font-style: italic; }
+
+        /* BULK PREVIEW */
+        .bulk-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2.5px solid var(--navy);
+        }
+        .bulk-count {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900; color: var(--navy); text-transform: uppercase;
+        }
+        .bulk-count span { color: var(--pink); }
+        .comment-card {
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            background: var(--white); margin-bottom: 14px;
+        }
+        .comment-card-header {
+            background: var(--navy); padding: 7px 14px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .comment-card-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 800;
+            letter-spacing: 0.08em; text-transform: uppercase; color: var(--white);
+        }
+        .comment-card-body { padding: 14px; font-size: 12px; line-height: 1.85; color: var(--navy); }
+        .comment-card-footer {
+            padding: 10px 14px; border-top: 1px solid var(--light-grey);
+            background: var(--off-white); text-align: right;
+        }
+        .bulk-empty { text-align: center; padding: 50px 20px; color: var(--mid-grey); font-size: 13px; font-style: italic; }
+
+        /* CONFIGURE TOGGLE */
+        .config-toggle {
+            width: 100%;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+            background: var(--off-white); color: var(--navy);
+            border: 1.5px solid var(--light-grey); border-top: 2.5px solid var(--navy);
+            padding: 11px 14px; cursor: pointer;
+            text-align: left; display: flex; align-items: center; justify-content: space-between;
+        }
+        .config-toggle:hover { background: var(--light-grey); }
+        .config-toggle-arrow { font-size: 10px; transition: transform 0.2s; }
+        .config-toggle.open .config-toggle-arrow { transform: rotate(180deg); }
+        .config-panel { display: none; margin-bottom: 16px; }
+        .config-panel.open { display: block; }
+
+        /* MARKBOOKS */
+        .markbook-card {
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            background: var(--white); margin-bottom: 14px;
+        }
+        .markbook-card-header {
+            background: var(--navy); padding: 7px 14px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .markbook-card-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 14px; font-weight: 800;
+            letter-spacing: 0.08em; text-transform: uppercase; color: var(--white);
+        }
+        .markbook-scores {
+            padding: 12px 14px;
+            display: flex; gap: 20px; align-items: center;
+            border-bottom: 1px solid var(--light-grey);
+            background: #fafafa; flex-wrap: wrap;
+        }
+        .markbook-score-item { font-size: 12px; }
+        .markbook-score-item strong {
+            display: block;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--mid-grey); margin-bottom: 2px;
+        }
+        .markbook-score-val {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 22px; font-weight: 900; color: var(--navy);
+        }
+        .markbook-score-denom { font-size: 12px; color: var(--mid-grey); }
+        .markbook-comment { padding: 14px; font-size: 12px; line-height: 1.85; color: var(--navy); }
+        .markbook-no-comment { padding: 14px; font-size: 12px; color: var(--mid-grey); font-style: italic; }
+        .markbook-footer {
+            padding: 10px 14px; border-top: 1px solid var(--light-grey);
+            background: var(--off-white); display: flex; gap: 8px; justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <div>
+        <p class="app-header-label">Year 8 Technologies</p>
+        <h1 class="app-header-title">App-etite Feedback</h1>
+    </div>
+</div>
+<div class="header-accent"></div>
+
+<div class="mode-strip">
+    <button class="mode-btn active" id="mode-single" onclick="setMode('single')">Single Student</button>
+    <button class="mode-btn" id="mode-bulk" onclick="setMode('bulk')">Bulk Import</button>
+    <button class="mode-btn" id="mode-markbooks" onclick="setMode('markbooks')">Markbooks</button>
+</div>
+
+<div class="app-body">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+        <!-- SINGLE -->
+        <div id="single-inputs">
+            <div class="section-head">
+                <span class="section-label">Step 01</span>
+                <h2 class="section-title">Student Details</h2>
+            </div>
+            <div class="ruled-card">
+                <div class="ruled-card-inner">
+                    <label class="field-label" for="student-name">First Name</label>
+                    <input type="text" id="student-name" class="text-input" placeholder="e.g. Emma" oninput="generate()">
+                </div>
+            </div>
+
+            <div class="section-head">
+                <span class="section-label">Step 02</span>
+                <h2 class="section-title">Skill Marks</h2>
+            </div>
+            <div class="paste-row">
+                <input type="text" id="paste-input" class="text-input" placeholder="Paste 15 Excel mark cells here..." onpaste="handleSinglePaste(event)">
+                <button class="action-btn secondary" onclick="clearMarks()">&#10005;&nbsp; Clear</button>
+            </div>
+            <div class="note-box">
+                <p class="note-label">Mark scale</p>
+                <p>Enter marks from 1-9. Marks of 7 or below generate improvement statements. Grade and adjectives are calculated automatically from the overall percentage.</p>
+            </div>
+            <div class="ruled-card" style="margin-bottom:16px;">
+                <table class="skills-table" id="skills-table"></table>
+            </div>
+
+            <div id="praise-section" style="display:none;">
+                <div class="section-head">
+                    <span class="section-label">Step 02b</span>
+                    <h2 class="section-title">Praise Statement</h2>
+                </div>
+                <div class="note-box">
+                    <p class="note-label">Praise options</p>
+                    <p>Only skills achieved at A level are shown. Optionally select one to highlight.</p>
+                </div>
+                <div class="ruled-card" style="margin-bottom:0;">
+                    <div id="praise-options"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BULK -->
+        <div id="bulk-inputs" style="display:none;">
+            <div class="section-head">
+                <span class="section-label">Step 01</span>
+                <h2 class="section-title">Paste Student Data</h2>
+            </div>
+            <div class="note-box">
+                <p class="note-label">Expected format</p>
+                <p>Each row is one student in "Last, First" format followed by 15 mark values (1-9). Paste directly from Excel. Adjectives are determined automatically from the overall percentage.</p>
+            </div>
+            <div class="ruled-card">
+                <div class="ruled-card-inner">
+                    <label class="field-label" for="bulk-paste">Paste from Excel</label>
+                    <textarea id="bulk-paste" class="text-input" oninput="parseBulk()" style="min-height:110px;" placeholder="Doe, Jane&#9;9&#9;9&#9;9&#9;9&#9;9&#9;9&#9;5&#9;5&#9;4&#9;3&#9;7&#9;5&#9;4&#9;1&#9;2"></textarea>
+                </div>
+            </div>
+
+            <button class="config-toggle" id="config-toggle-btn" onclick="toggleConfig()">
+                <span>Configure Skill Text Overrides</span>
+                <span class="config-toggle-arrow">&#9660;</span>
+            </button>
+            <div class="config-panel" id="config-panel">
+                <div class="ruled-card" style="margin-top:0; border-top:1px solid var(--light-grey);">
+                    <table class="skills-table" id="config-table"></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MARKBOOKS -->
+        <div id="markbooks-inputs" style="display:none;">
+            <div class="section-head">
+                <span class="section-label">Step 01</span>
+                <h2 class="section-title">Paste Markbook Data</h2>
+            </div>
+            <div class="note-box">
+                <p class="note-label">Expected format</p>
+                <p>Each row is one student in "Last, First" format followed by 5 category scores. Scores are in "7 (B)" format. Paste directly from Excel.</p>
+            </div>
+            <div class="note-box" style="border-left-color: var(--pink);">
+                <p class="note-label" style="color:var(--pink);">Requires Bulk Import</p>
+                <p>Comments are pulled from the Bulk Import tab. Run Bulk Import first to populate comments for each student.</p>
+            </div>
+            <div class="ruled-card">
+                <div class="ruled-card-inner">
+                    <label class="field-label" for="markbook-paste">Paste from Excel</label>
+                    <textarea id="markbook-paste" class="text-input" oninput="parseMarkbooks()" style="min-height:110px;" placeholder="Doe, Jane&#9;7 (B)&#9;3 (D)&#9;8 (A)&#9;4 (C)&#9;9 (A)"></textarea>
+                </div>
+            </div>
+            <div class="note-box">
+                <p class="note-label">Column mapping</p>
+                <p><strong>Column 1:</strong> Knowledge and Understanding (DESIGN) - out of 9.<br>
+                <strong>Columns 2-5:</strong> Processes and Production Skills (DIGITAL) - summed, out of 36.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+        <!-- SINGLE PREVIEW -->
+        <div id="single-preview">
+            <div class="section-head">
+                <span class="section-label">Preview</span>
+                <h2 class="section-title">Generated Comment</h2>
+            </div>
+            <div class="output-box" id="output-box">
+                <span class="output-placeholder">Enter a student name and marks to generate a comment.</span>
+            </div>
+            <button class="action-btn" id="copy-btn" onclick="copySingle()" disabled>&#10064;&nbsp; Copy to Clipboard</button>
+        </div>
+
+        <!-- BULK PREVIEW -->
+        <div id="bulk-preview" style="display:none;">
+            <div class="bulk-header">
+                <div class="bulk-count"><span id="bulk-count-num">0</span> Students</div>
+                <button class="action-btn" id="copy-all-btn" onclick="copyAll()" disabled>&#10064;&nbsp; Copy All</button>
+            </div>
+            <div id="bulk-cards">
+                <div class="bulk-empty">Paste student data on the left to generate comments.</div>
+            </div>
+        </div>
+
+        <!-- MARKBOOKS PREVIEW -->
+        <div id="markbooks-preview" style="display:none;">
+            <div class="bulk-header">
+                <div class="bulk-count"><span id="mb-count-num">0</span> Students</div>
+            </div>
+            <div id="markbook-cards">
+                <div class="bulk-empty">Paste markbook data on the left.</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// SKILL DEFINITIONS
+// ═══════════════════════════════════════
+
+// All 15 skills in paste order
+const SKILL_IDS = ['q0','q1','q2','q3','q4_1','q4_2','q4_3','q4_4','q4_5','q5a','q5b','q6','q7','q8a','q8b'];
+
+const SKILL_DEFS = [
+    { id: 'q0',   label: 'Gantt Chart & Checkpoints',     sub: 'Q0' },
+    { id: 'q1',   label: 'CARP Analysis',                  sub: 'Q1' },
+    { id: 'q2',   label: 'Mood Board Collection',          sub: 'Q2' },
+    { id: 'q3',   label: 'Survey File Allocation',         sub: 'Q3', noImprovement: true },
+    { id: 'q4_1', label: 'Spreadsheet Task 1',             sub: 'Q4 Part B', group: 'q4' },
+    { id: 'q4_2', label: 'Spreadsheet Task 2',             sub: 'Q4 Part B', group: 'q4' },
+    { id: 'q4_3', label: 'Spreadsheet Task 3',             sub: 'Q4 Part B', group: 'q4' },
+    { id: 'q4_4', label: 'Spreadsheet Task 4',             sub: 'Q4 Part B', group: 'q4' },
+    { id: 'q4_5', label: 'Spreadsheet Task 5',             sub: 'Q4 Part B', group: 'q4' },
+    { id: 'q5a',  label: 'Food Presentation Research',     sub: 'Q5' },
+    { id: 'q5b',  label: 'Food Presentation Techniques',   sub: 'Q5' },
+    { id: 'q6',   label: 'User Stories',                   sub: 'Q6' },
+    { id: 'q7',   label: 'Design Criteria Development',    sub: 'Q7' },
+    { id: 'q8a',  label: 'Wireframes',                     sub: 'Q8', group: 'q8' },
+    { id: 'q8b',  label: 'Digital Tools Usage',            sub: 'Q8', group: 'q8' },
+];
+
+// Improvement and praise groups (handles grouped logic for Q4 and Q8)
+const IMP_GROUPS = [
+    {
+        id: 'q0', label: 'Gantt Chart',
+        needsImprovement: m => (m.q0 ?? 9) < 8,
+        praiseEligible:   m => (m.q0 ?? 9) >= 8,
+        improvement: 'your Gantt chart was not effectively laid out, or you needed to more effectively manage your time and the overall project load to the best of your ability',
+        praise: 'Your Gantt chart was clearly and effectively laid out, showing strong project management skills and a well-balanced approach to time and workload throughout the project.'
+    },
+    {
+        id: 'q1', label: 'CARP Analysis',
+        needsImprovement: m => (m.q1 ?? 9) < 8,
+        praiseEligible:   m => (m.q1 ?? 9) >= 8,
+        improvement: 'you could have put more detail and effort into your CARP analysis, going beyond just listing design decisions to making deeper connections to the impact that the design choices have on the user',
+        praise: 'Your CARP analysis was thorough and insightful, going well beyond surface-level observations to make meaningful connections between design decisions and their real impact on the user.'
+    },
+    {
+        id: 'q2', label: 'Mood Board',
+        needsImprovement: m => (m.q2 ?? 9) < 8,
+        praiseEligible:   m => (m.q2 ?? 9) >= 8,
+        improvement: 'your mood board needed to be more comprehensive -- include more diverse examples of colour schemes, typography, photography styles, and layout patterns',
+        praise: 'Your mood board was comprehensive and diverse, drawing from a strong range of colour schemes, typography, photography styles, and layout patterns to clearly communicate your design direction.'
+    },
+    {
+        id: 'q4', label: 'Spreadsheet Tasks',
+        needsImprovement: m => {
+            const avg = ['q4_1','q4_2','q4_3','q4_4','q4_5'].reduce((s,id) => s + (m[id] ?? 9), 0) / 5;
+            return avg < 8;
+        },
+        praiseEligible: m => {
+            const avg = ['q4_1','q4_2','q4_3','q4_4','q4_5'].reduce((s,id) => s + (m[id] ?? 9), 0) / 5;
+            return avg >= 8;
+        },
+        improvement: 'your spreadsheet skills needed to ensure all tasks were completed thoroughly with clear screenshots, proper formula usage, and well-formatted charts by following the tutorial materials given to you',
+        praise: 'Your spreadsheet work was thoroughly completed across all tasks, with clear screenshots, correct formula usage, and well-formatted charts that showed confident use of the tutorial materials.'
+    },
+    {
+        id: 'q5a', label: 'Food Presentation Research',
+        needsImprovement: m => (m.q5a ?? 9) < 8,
+        praiseEligible:   m => (m.q5a ?? 9) >= 8,
+        improvement: 'you could have put more detail into your see-think-wonder notetaking and made deeper connections to your understandings of nutrition and food presentation, and more clearly identified the topics covered in the BTN video',
+        praise: 'Your see-think-wonder notetaking was detailed and thoughtful, with strong connections to nutrition and food presentation and a clear identification of the key topics from the BTN video.'
+    },
+    {
+        id: 'q5b', label: 'Food Presentation Techniques',
+        needsImprovement: m => (m.q5b ?? 9) < 8,
+        praiseEligible:   m => (m.q5b ?? 9) >= 8,
+        improvement: 'you needed to make clearer connections between problems and design solutions, using appropriately open how-might-we statements to guide design thinking, and more specific explanations of how your nudge and gamification strategies would work in practice',
+        praise: 'You made clear and confident connections between problems and design solutions, using well-constructed how-might-we statements and specific, thoughtful explanations of how your nudge and gamification strategies would work in practice.'
+    },
+    {
+        id: 'q6', label: 'User Stories',
+        needsImprovement: m => (m.q6 ?? 9) < 8,
+        praiseEligible:   m => (m.q6 ?? 9) >= 8,
+        improvement: 'ensure each story is complete with clear user types, specific goals, and meaningful benefits that connect to real user needs identified in your research, and avoid prescribing narrow technical features',
+        praise: 'Your user stories were complete and well-crafted, with clear user types, specific goals, and meaningful benefits that connected directly to the real user needs you identified in your research.'
+    },
+    {
+        id: 'q7', label: 'Design Criteria',
+        needsImprovement: m => (m.q7 ?? 9) < 8,
+        praiseEligible:   m => (m.q7 ?? 9) >= 8,
+        improvement: 'make each criterion more measurable and testable, and provide clearer explanations of how you will evaluate your design against each one',
+        praise: 'Your design criteria were measurable, testable, and well-explained, with clear descriptions of how you would evaluate your final design against each one.'
+    },
+    {
+        id: 'q8', label: 'Wireframes & Digital Tools',
+        needsImprovement: m => (m.q8a ?? 9) < 8 && (m.q8b ?? 9) < 8,
+        praiseEligible:   m => (m.q8a ?? 9) >= 8 && (m.q8b ?? 9) >= 8,
+        improvement: 'your wireframe designs needed to utilise consistent aesthetic application of CARP principles and clearly demonstrate a proof of concept that makes nutrition interesting and accessible for users',
+        praise: 'Your wireframe designs showed strong and consistent application of CARP principles, presenting a compelling proof of concept that makes nutrition genuinely interesting and accessible for users.'
+    },
+];
+
+const EXTRA_PRAISE = {
+    id: '_effort', label: 'Overall Effort and Engagement',
+    text: 'Throughout this assessment, you engaged with each task with genuine curiosity and care. Your overall effort and commitment to producing quality work was evident throughout, and it was great to see.'
+};
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+
+let currentMode = 'single';
+let singleMarks = {};
+let singlePraiseIdx = null;
+let singlePraiseOptions = [];
+let bulkStudents = [];
+let bulkPraiseSelections = {};
+let bulkComments = {};   // firstName -> comment string, used by markbooks
+let markbookStudents = [];
+
+SKILL_IDS.forEach(id => { singleMarks[id] = 9; });
+
+// ═══════════════════════════════════════
+// LOCAL STORAGE (overrides only)
+// ═══════════════════════════════════════
+
+function loadOverrides() {
+    try { return JSON.parse(localStorage.getItem('appetite_overrides') || '{}'); }
+    catch { return {}; }
+}
+function saveOverride(gid, improvement, praise) {
+    const o = loadOverrides(); o[gid] = { improvement, praise };
+    localStorage.setItem('appetite_overrides', JSON.stringify(o));
+}
+function resetOverride(gid) {
+    const o = loadOverrides(); delete o[gid];
+    localStorage.setItem('appetite_overrides', JSON.stringify(o));
+}
+function getGroup(gid) {
+    const base = IMP_GROUPS.find(g => g.id === gid);
+    const o = loadOverrides()[gid];
+    if (!o) return base;
+    return { ...base, improvement: o.improvement ?? base.improvement, praise: o.praise ?? base.praise };
+}
+
+// ═══════════════════════════════════════
+// GRADE FROM MARKS (percentage)
+// ═══════════════════════════════════════
+
+function gradeFromMarks(marks) {
+    const total = SKILL_IDS.reduce((s, id) => s + (marks[id] ?? 9), 0);
+    const pct = total / (SKILL_IDS.length * 9) * 100;
+    if (pct >= 80) return 'A';
+    if (pct >= 64) return 'B';
+    if (pct >= 48) return 'C';
+    if (pct >= 30) return 'D';
+    return 'E';
+}
+
+function colorClassForMark(val) {
+    if (val >= 8) return 'grade-a';
+    if (val >= 6) return 'grade-b';
+    if (val >= 4) return 'grade-c';
+    if (val >= 2) return 'grade-d';
+    return 'grade-e';
+}
+
+// ═══════════════════════════════════════
+// COMMENT BUILDER
+// ═══════════════════════════════════════
+
+const gradeData = {
+    A: { adj: 'very high', article: 'an', closing: 'excellent' },
+    B: { adj: 'high',      article: 'a',  closing: 'great' },
+    C: { adj: 'satisfactory', article: 'a', closing: 'solid' },
+    D: { adj: 'developing', article: 'an', closing: 'adequate' },
+    E: { adj: 'limited',   article: 'a',  closing: 'developing' },
+};
+
+const connectors = ['Also,', 'Additionally,', 'Further to this,', 'It would also help to'];
+
+function buildImprovements(items) {
+    if (!items.length) return '';
+    if (items.length === 1) return `To improve, ${items[0]}.`;
+    let text = `To improve, ${items[0]}.`;
+    for (let i = 1; i < items.length; i++) {
+        text += ` ${connectors[Math.min(i - 1, connectors.length - 1)]} ${items[i]}.`;
+    }
+    return text;
+}
+
+function buildComment(name, marks, praiseText) {
+    const grade = gradeFromMarks(marks);
+    const gd = gradeData[grade];
+    const opening = 'This term, we explored the interfaces of existing apps, explored and manipulated spreadsheet survey data, looked at how digital interfaces influence healthy eating choices, and created wireframe designs that support better food choices for students.';
+
+    let achievement;
+    if (grade === 'A') {
+        achievement = `${name}, you approached this assessment with excellent skill and care, producing work of a very high standard across each task.`;
+    } else if (grade === 'B') {
+        achievement = `${name}, you produced work of a high standard across this assessment, engaging well with each task and demonstrating strong skills throughout.`;
+    } else if (grade === 'C') {
+        achievement = `${name}, you completed this assessment to a satisfactory standard, demonstrating a developing understanding of the key concepts and skills.`;
+    } else if (grade === 'D') {
+        achievement = `${name}, you demonstrated a developing level of skill across the assessment tasks, and with more focused effort, you can continue to improve going forward.`;
+    } else {
+        achievement = `${name}, you are working towards the required standard for this assessment, and with further effort and engagement, there is clear room for growth.`;
+    }
+
+    const improvements = IMP_GROUPS
+        .filter(g => g.needsImprovement(marks))
+        .map(g => getGroup(g.id).improvement)
+        .filter(Boolean);
+
+    const closing = `Overall, ${gd.article} ${gd.closing} effort and result.`;
+    const parts = [opening, achievement];
+    if (praiseText) parts.push(praiseText);
+    if (improvements.length) parts.push(buildImprovements(improvements));
+    parts.push(closing);
+    return parts.join(' ');
+}
+
+// ═══════════════════════════════════════
+// AVAILABLE PRAISE FOR MARKS
+// ═══════════════════════════════════════
+
+function availablePraiseForMarks(marks) {
+    const opts = IMP_GROUPS
+        .filter(g => g.praiseEligible(marks))
+        .map(g => {
+            const grp = getGroup(g.id);
+            return { id: g.id, label: g.label, text: grp.praise };
+        });
+    opts.push({ id: EXTRA_PRAISE.id, label: EXTRA_PRAISE.label, text: EXTRA_PRAISE.text });
+    return opts;
+}
+
+// ═══════════════════════════════════════
+// MODE
+// ═══════════════════════════════════════
+
+function setMode(mode) {
+    currentMode = mode;
+    ['single','bulk','markbooks'].forEach(m => {
+        document.getElementById(`mode-${m}`).classList.toggle('active', m === mode);
+        document.getElementById(`${m}-inputs`).style.display = m === mode ? 'block' : 'none';
+        document.getElementById(`${m}-preview`).style.display = m === mode ? 'block' : 'none';
+    });
+}
+
+// ═══════════════════════════════════════
+// BUILD SKILLS TABLE (single mode)
+// ═══════════════════════════════════════
+
+function buildSkillsTable() {
+    const table = document.getElementById('skills-table');
+    table.innerHTML = '';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr>
+        <th>Skill</th>
+        <th class="center" style="width:70px;">Mark</th>
+        <th class="center" style="width:75px;">Override</th>
+    </tr>`;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    const overrides = loadOverrides();
+    let inQ4 = false, inQ8 = false;
+
+    SKILL_DEFS.forEach(skill => {
+        // Group headers
+        if (skill.group === 'q4' && !inQ4) {
+            inQ4 = true;
+            const hr = document.createElement('tr');
+            hr.className = 'group-header-row';
+            hr.innerHTML = `<td colspan="3">Q4 Part B -- Spreadsheet Tasks <span class="group-note">(averaged for improvement)</span></td>`;
+            tbody.appendChild(hr);
+        }
+        if (skill.group === 'q8' && !inQ8) {
+            inQ8 = true;
+            const hr = document.createElement('tr');
+            hr.className = 'group-header-row';
+            hr.innerHTML = `<td colspan="3">Q8 -- Wireframes & Digital Tools <span class="group-note">(shared improvement if both below A)</span></td>`;
+            tbody.appendChild(hr);
+        }
+
+        const val = singleMarks[skill.id] ?? 9;
+        const colorClass = colorClassForMark(val);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <span class="skill-name">${skill.label}</span>
+                <span class="skill-sub">${skill.sub}</span>
+            </td>
+            <td class="center">
+                <input type="number" min="1" max="9" value="${val}"
+                    class="mark-input ${colorClass}"
+                    data-id="${skill.id}"
+                    oninput="setSingleMark('${skill.id}', this)">
+            </td>
+            <td class="center">
+                <button class="edit-btn${overrides[skill.group || skill.id] || overrides[skill.id] ? ' has-override' : ''}"
+                    id="editbtn-${skill.id}"
+                    onclick="toggleOverrideRow('${skill.id}','skills-table')">
+                    ${overrides[skill.group || skill.id] || overrides[skill.id] ? '&#9998; Edited' : 'Edit'}
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+
+        // Override expand -- attach to the group representative or individual
+        const ovId = skill.group || skill.id;
+        const grp = IMP_GROUPS.find(g => g.id === ovId);
+        if (grp && !skill.noImprovement) {
+            const cur = getGroup(ovId);
+            const expandRow = document.createElement('tr');
+            expandRow.className = 'override-row';
+            expandRow.id = `override-${skill.id}`;
+            expandRow.innerHTML = `
+                <td colspan="3" style="padding:0;">
+                    <div class="override-expand">
+                        <span class="ov-label">Improvement Statement</span>
+                        <textarea class="override-textarea" id="ov-imp-${skill.id}">${cur.improvement}</textarea>
+                        <span class="ov-label">Praise Statement</span>
+                        <textarea class="override-textarea" id="ov-praise-${skill.id}">${cur.praise}</textarea>
+                        <div class="override-actions">
+                            <button class="save-btn" onclick="saveSkillOverride('${skill.id}','${ovId}')">Save Override</button>
+                            <button class="reset-btn" onclick="resetSkillOverride('${skill.id}','${ovId}')">Reset to Default</button>
+                        </div>
+                    </div>
+                </td>`;
+            tbody.appendChild(expandRow);
+        }
+    });
+    table.appendChild(tbody);
+}
+
+// ═══════════════════════════════════════
+// BUILD CONFIG TABLE (bulk mode)
+// ═══════════════════════════════════════
+
+function buildConfigTable() {
+    const table = document.getElementById('config-table');
+    table.innerHTML = '';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `<tr><th>Group</th><th class="center" style="width:75px;">Override</th></tr>`;
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    const overrides = loadOverrides();
+    IMP_GROUPS.forEach(grp => {
+        const hasOverride = !!overrides[grp.id];
+        const cur = getGroup(grp.id);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="skill-name">${grp.label}</span></td>
+            <td class="center">
+                <button class="edit-btn${hasOverride ? ' has-override' : ''}" onclick="toggleOverrideRow('cfg-${grp.id}','config-table')">
+                    ${hasOverride ? '&#9998; Edited' : 'Edit'}
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+        const expandRow = document.createElement('tr');
+        expandRow.className = 'override-row';
+        expandRow.id = `override-cfg-${grp.id}`;
+        expandRow.innerHTML = `
+            <td colspan="2" style="padding:0;">
+                <div class="override-expand">
+                    <span class="ov-label">Improvement Statement</span>
+                    <textarea class="override-textarea" id="cfg-imp-${grp.id}">${cur.improvement}</textarea>
+                    <span class="ov-label">Praise Statement</span>
+                    <textarea class="override-textarea" id="cfg-praise-${grp.id}">${cur.praise}</textarea>
+                    <div class="override-actions">
+                        <button class="save-btn" onclick="saveCfgOverride('${grp.id}')">Save Override</button>
+                        <button class="reset-btn" onclick="resetCfgOverride('${grp.id}')">Reset to Default</button>
+                    </div>
+                </div>
+            </td>`;
+        tbody.appendChild(expandRow);
+    });
+    table.appendChild(tbody);
+}
+
+// ═══════════════════════════════════════
+// OVERRIDE ACTIONS
+// ═══════════════════════════════════════
+
+function toggleOverrideRow(id, ctx) {
+    const rowId = ctx === 'config-table' ? `override-cfg-${id.replace('cfg-','')}` : `override-${id}`;
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    const isOpen = row.classList.contains('open');
+    document.querySelectorAll('.override-row.open').forEach(r => r.classList.remove('open'));
+    if (!isOpen) row.classList.add('open');
+}
+
+function saveSkillOverride(skillId, groupId) {
+    const imp = document.getElementById(`ov-imp-${skillId}`).value.trim();
+    const praise = document.getElementById(`ov-praise-${skillId}`).value.trim();
+    saveOverride(groupId, imp, praise);
+    buildSkillsTable(); restoreSingleMarkInputs();
+    buildSinglePraiseOptions(); generate();
+}
+
+function resetSkillOverride(skillId, groupId) {
+    resetOverride(groupId);
+    buildSkillsTable(); restoreSingleMarkInputs();
+    buildSinglePraiseOptions(); generate();
+}
+
+function saveCfgOverride(gid) {
+    const imp = document.getElementById(`cfg-imp-${gid}`).value.trim();
+    const praise = document.getElementById(`cfg-praise-${gid}`).value.trim();
+    saveOverride(gid, imp, praise);
+    buildConfigTable(); parseBulk();
+}
+
+function resetCfgOverride(gid) {
+    resetOverride(gid);
+    buildConfigTable(); parseBulk();
+}
+
+function restoreSingleMarkInputs() {
+    SKILL_IDS.forEach(id => {
+        const input = document.querySelector(`.mark-input[data-id="${id}"]`);
+        if (input) {
+            const val = singleMarks[id] ?? 9;
+            input.value = val;
+            input.className = `mark-input ${colorClassForMark(val)}`;
+        }
+    });
+}
+
+// ═══════════════════════════════════════
+// PRAISE (SINGLE)
+// ═══════════════════════════════════════
+
+function buildSinglePraiseOptions() {
+    const container = document.getElementById('praise-options');
+    container.innerHTML = '';
+    singlePraiseIdx = null;
+    singlePraiseOptions = availablePraiseForMarks(singleMarks);
+
+    const section = document.getElementById('praise-section');
+    section.style.display = singlePraiseOptions.length > 1 ? 'block' : 'none';
+
+    singlePraiseOptions.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'praise-option';
+        div.innerHTML = `
+            <div class="praise-radio"><div class="praise-radio-dot"></div></div>
+            <div>
+                <p class="praise-lbl">${opt.label}</p>
+                <p class="praise-txt">${opt.text}</p>
+            </div>`;
+        div.addEventListener('click', () => {
+            if (singlePraiseIdx === i) {
+                singlePraiseIdx = null;
+                div.classList.remove('selected');
+            } else {
+                singlePraiseIdx = i;
+                container.querySelectorAll('.praise-option').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+            }
+            generate();
+        });
+        container.appendChild(div);
+    });
+}
+
+// ═══════════════════════════════════════
+// MARKS (SINGLE)
+// ═══════════════════════════════════════
+
+function setSingleMark(id, input) {
+    let val = parseInt(input.value);
+    if (isNaN(val)) val = 9;
+    val = Math.min(9, Math.max(1, val));
+    input.value = val;
+    singleMarks[id] = val;
+    input.className = `mark-input ${colorClassForMark(val)}`;
+    buildSinglePraiseOptions();
+    generate();
+}
+
+function handleSinglePaste(e) {
+    e.preventDefault();
+    const raw = (e.clipboardData || window.clipboardData).getData('text');
+    const values = raw.trim().split(/[\t\n\r]+/).map(v => v.trim()).filter(v => v !== '');
+    values.forEach((v, i) => {
+        if (i >= SKILL_IDS.length) return;
+        const num = parseInt(v);
+        if (num >= 1 && num <= 9) singleMarks[SKILL_IDS[i]] = num;
+    });
+    e.target.value = '';
+    restoreSingleMarkInputs();
+    buildSinglePraiseOptions();
+    generate();
+}
+
+function clearMarks() {
+    SKILL_IDS.forEach(id => { singleMarks[id] = 9; });
+    document.getElementById('paste-input').value = '';
+    restoreSingleMarkInputs();
+    buildSinglePraiseOptions();
+    generate();
+}
+
+// ═══════════════════════════════════════
+// SINGLE GENERATE
+// ═══════════════════════════════════════
+
+function generate() {
+    const name = document.getElementById('student-name').value.trim();
+    const box = document.getElementById('output-box');
+    const copyBtn = document.getElementById('copy-btn');
+    if (!name) {
+        box.innerHTML = '<span class="output-placeholder">Enter a student name and marks to generate a comment.</span>';
+        copyBtn.disabled = true; return;
+    }
+    const praiseText = singlePraiseIdx !== null ? singlePraiseOptions[singlePraiseIdx]?.text : null;
+    box.textContent = buildComment(name, singleMarks, praiseText);
+    copyBtn.disabled = false;
+}
+
+function copySingle() {
+    const text = document.getElementById('output-box').textContent;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy to Clipboard'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+// ═══════════════════════════════════════
+// BULK
+// ═══════════════════════════════════════
+
+function extractFirstName(str) {
+    const s = str.trim();
+    if (s.includes(',')) return s.split(',')[1].trim().split(' ')[0];
+    return s.split(' ')[0];
+}
+
+function parseBulk() {
+    const raw = document.getElementById('bulk-paste').value;
+    const lines = raw.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    bulkStudents = [];
+    bulkComments = {};
+
+    lines.forEach(line => {
+        const parts = (line.includes('\t') ? line.split('\t') : line.split(/\s{2,}/))
+            .map(p => p.trim()).filter(Boolean);
+        if (parts.length < 2) return;
+        const firstName = extractFirstName(parts[0]);
+        const markValues = parts.slice(1).map(v => parseInt(v)).filter(v => v >= 1 && v <= 9);
+        const marks = {};
+        SKILL_IDS.forEach((id, i) => { marks[id] = markValues[i] !== undefined ? markValues[i] : 9; });
+        bulkStudents.push({ firstName, marks });
+    });
+
+    renderBulkPreview();
+}
+
+function renderBulkPreview() {
+    document.getElementById('bulk-count-num').textContent = bulkStudents.length;
+    const cardsEl = document.getElementById('bulk-cards');
+    const copyAllBtn = document.getElementById('copy-all-btn');
+    bulkPraiseSelections = {};
+    bulkComments = {};
+
+    if (!bulkStudents.length) {
+        cardsEl.innerHTML = '<div class="bulk-empty">Paste student data on the left to generate comments.</div>';
+        copyAllBtn.disabled = true; return;
+    }
+
+    copyAllBtn.disabled = false;
+    cardsEl.innerHTML = '';
+
+    bulkStudents.forEach((student, i) => {
+        const available = availablePraiseForMarks(student.marks);
+        const chips = available.map((opt, pi) =>
+            `<button class="bulk-praise-chip" data-pi="${pi}" onclick="selectBulkPraise(${i},${pi})">${opt.label}</button>`
+        ).join('');
+
+        const card = document.createElement('div');
+        card.className = 'comment-card';
+
+        // Store base comment
+        const baseComment = buildComment(student.firstName, student.marks, null);
+        bulkComments[student.firstName.toLowerCase()] = baseComment;
+
+        card.innerHTML = `
+            <div class="comment-card-header">
+                <span class="comment-card-name">${student.firstName}</span>
+            </div>
+            <div class="bulk-praise-wrap">
+                <span class="bulk-praise-wrap-label">Praise highlight (optional)</span>
+                <div class="bulk-praise-options" id="bulk-praise-${i}" data-available='${JSON.stringify(available)}'>${chips}</div>
+            </div>
+            <div class="comment-card-body" id="card-body-${i}">${baseComment}</div>
+            <div class="comment-card-footer">
+                <button class="action-btn" id="card-copy-${i}" onclick="copyCard(${i})">&#10064;&nbsp; Copy</button>
+            </div>`;
+        cardsEl.appendChild(card);
+    });
+}
+
+function selectBulkPraise(studentIdx, localPraiseIdx) {
+    const container = document.getElementById(`bulk-praise-${studentIdx}`);
+    if (!container) return;
+    const available = JSON.parse(container.dataset.available || '[]');
+
+    if (bulkPraiseSelections[studentIdx] === localPraiseIdx) {
+        delete bulkPraiseSelections[studentIdx];
+    } else {
+        bulkPraiseSelections[studentIdx] = localPraiseIdx;
+    }
+    container.querySelectorAll('.bulk-praise-chip').forEach((chip, ci) => {
+        chip.classList.toggle('active', bulkPraiseSelections[studentIdx] === ci);
+    });
+
+    const praiseText = bulkPraiseSelections[studentIdx] !== undefined
+        ? available[bulkPraiseSelections[studentIdx]]?.text : null;
+    const comment = buildComment(bulkStudents[studentIdx].firstName, bulkStudents[studentIdx].marks, praiseText);
+
+    // Keep bulkComments in sync with current selection
+    bulkComments[bulkStudents[studentIdx].firstName.toLowerCase()] = comment;
+
+    const bodyEl = document.getElementById(`card-body-${studentIdx}`);
+    if (bodyEl) bodyEl.textContent = comment;
+}
+
+function getBulkComment(i) {
+    const student = bulkStudents[i];
+    const container = document.getElementById(`bulk-praise-${i}`);
+    const available = container ? JSON.parse(container.dataset.available || '[]') : [];
+    const praiseText = bulkPraiseSelections[i] !== undefined ? available[bulkPraiseSelections[i]]?.text : null;
+    return buildComment(student.firstName, student.marks, praiseText);
+}
+
+function copyCard(i) {
+    const comment = getBulkComment(i);
+    navigator.clipboard.writeText(comment).then(() => {
+        const btn = document.getElementById(`card-copy-${i}`);
+        btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+function copyAll() {
+    const all = bulkStudents.map((s, i) => getBulkComment(i)).join('\n\n');
+    navigator.clipboard.writeText(all).then(() => {
+        const btn = document.getElementById('copy-all-btn');
+        btn.innerHTML = '&#10003;&nbsp; Copied All!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy All'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+function toggleConfig() {
+    document.getElementById('config-panel').classList.toggle('open');
+    document.getElementById('config-toggle-btn').classList.toggle('open');
+}
+
+// ═══════════════════════════════════════
+// MARKBOOKS
+// ═══════════════════════════════════════
+
+function parseMarkbooks() {
+    const raw = document.getElementById('markbook-paste').value;
+    const lines = raw.trim().split('\n').map(l => l.trim()).filter(Boolean);
+    markbookStudents = [];
+
+    lines.forEach(line => {
+        const parts = (line.includes('\t') ? line.split('\t') : line.split(/\s{2,}/))
+            .map(p => p.trim()).filter(Boolean);
+        if (parts.length < 2) return;
+
+        const firstName = extractFirstName(parts[0]);
+        // Extract leading integer from each score cell e.g. "7 (B)" -> 7
+        const scores = parts.slice(1).map(v => parseInt(v)).filter(v => !isNaN(v));
+        if (!scores.length) return;
+
+        const ku = scores[0];                                      // out of 9
+        const pp = scores.slice(1, 5).reduce((s, v) => s + v, 0); // out of 36
+
+        const comment = bulkComments[firstName.toLowerCase()] || null;
+        markbookStudents.push({ firstName, ku, pp, comment });
+    });
+
+    renderMarkbooks();
+}
+
+function renderMarkbooks() {
+    const cardsEl = document.getElementById('markbook-cards');
+    document.getElementById('mb-count-num').textContent = markbookStudents.length;
+
+    if (!markbookStudents.length) {
+        cardsEl.innerHTML = '<div class="bulk-empty">Paste markbook data on the left.</div>';
+        return;
+    }
+
+    cardsEl.innerHTML = '';
+    markbookStudents.forEach((student, i) => {
+        const card = document.createElement('div');
+        card.className = 'markbook-card';
+        const commentHtml = student.comment
+            ? `<div class="markbook-comment" id="mb-comment-${i}">${student.comment}</div>`
+            : `<div class="markbook-no-comment">No bulk import comment found for ${student.firstName}. Run Bulk Import first.</div>`;
+
+        card.innerHTML = `
+            <div class="markbook-card-header">
+                <span class="markbook-card-name">${student.firstName}</span>
+            </div>
+            <div class="markbook-scores">
+                <div class="markbook-score-item">
+                    <strong>Knowledge &amp; Understanding (Design)</strong>
+                    <span class="markbook-score-val">${student.ku}</span>
+                    <span class="markbook-score-denom">&nbsp;/ 9</span>
+                </div>
+                <div class="markbook-score-item">
+                    <strong>Processes &amp; Production Skills (Digital)</strong>
+                    <span class="markbook-score-val">${student.pp}</span>
+                    <span class="markbook-score-denom">&nbsp;/ 36</span>
+                </div>
+            </div>
+            ${commentHtml}
+            <div class="markbook-footer">
+                <button class="action-btn sm" id="mb-scores-copy-${i}" onclick="copyMbScores(${i})">&#10064;&nbsp; Copy Scores</button>
+                ${student.comment ? `<button class="action-btn sm" id="mb-comment-copy-${i}" onclick="copyMbComment(${i})">&#10064;&nbsp; Copy Comment</button>` : ''}
+            </div>`;
+        cardsEl.appendChild(card);
+    });
+}
+
+function copyMbScores(i) {
+    const s = markbookStudents[i];
+    navigator.clipboard.writeText(`${s.ku}	${s.pp}`).then(() => {
+        const btn = document.getElementById(`mb-scores-copy-${i}`);
+        btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy Scores'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+function copyMbComment(i) {
+    const s = markbookStudents[i];
+    if (!s.comment) return;
+    navigator.clipboard.writeText(s.comment).then(() => {
+        const btn = document.getElementById(`mb-comment-copy-${i}`);
+        btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy Comment'; btn.classList.remove('copied'); }, 2200);
+    });
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+
+buildSkillsTable();
+buildConfigTable();
+buildSinglePraiseOptions();
+</script>
+</body>
+</html>
