@@ -432,8 +432,72 @@
             background: var(--white); color: var(--mid-grey);
             cursor: pointer; transition: all 0.1s;
         }
-        .bulk-imp-chip:hover { border-color: var(--pink); color: var(--pink); }
-        .bulk-imp-chip.active { background: var(--pink); color: var(--white); border-color: var(--pink); }
+        .bulk-imp-chip:hover { border-color: var(--pink); color: var(--white); background: var(--pink); }
+        .bulk-imp-chip.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+        .bulk-imp-chip.excluded { background: var(--off-white); color: var(--mid-grey); border-color: var(--light-grey); opacity: 0.5; }
+        .chip-var-badge {
+            font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+            background: rgba(255,255,255,0.25); padding: 1px 5px; margin-left: 5px;
+            vertical-align: middle; border-radius: 2px; display: inline-block;
+        }
+        .var-tooltip {
+            position: fixed; pointer-events: none; z-index: 1100;
+            background: var(--navy); color: var(--white); padding: 4px 10px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+            white-space: nowrap; opacity: 0; transition: opacity 0.1s;
+        }
+        .var-tooltip.visible { opacity: 1; }
+        .variation-popup-overlay { position: fixed; inset: 0; z-index: 1050; display: none; }
+        .variation-popup-overlay.open { display: block; }
+        .variation-popup {
+            position: fixed; z-index: 1051; width: 320px; max-height: 440px;
+            background: var(--white);
+            border-top: 3px solid var(--navy);
+            border-left: 1px solid var(--light-grey);
+            border-right: 1px solid var(--light-grey);
+            border-bottom: 1px solid var(--light-grey);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+            display: none; flex-direction: column;
+        }
+        .variation-popup.open { display: flex; }
+        .variation-popup-header {
+            background: var(--navy); padding: 8px 14px;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .variation-popup-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px; font-weight: 800; letter-spacing: 0.06em;
+            text-transform: uppercase; color: var(--white);
+        }
+        .variation-popup-close { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 16px; cursor: pointer; line-height: 1; padding: 0; }
+        .variation-popup-close:hover { color: var(--white); }
+        .variation-popup-list { overflow-y: auto; flex: 1; }
+        .variation-item { padding: 9px 14px; border-bottom: 1px solid var(--light-grey); cursor: pointer; transition: background 0.1s; }
+        .variation-item:last-child { border-bottom: none; }
+        .variation-item:hover { background: var(--off-white); }
+        .variation-item.selected { background: #eef0f8; border-left: 4px solid var(--navy); padding-left: 10px; }
+        .variation-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+        .variation-item-name { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); }
+        .variation-item-text { font-size: 11px; color: var(--mid-grey); line-height: 1.4; }
+        .variation-item.selected .variation-item-text { color: var(--navy); }
+        .variation-delete-btn { background: none; border: none; color: var(--mid-grey); font-size: 11px; cursor: pointer; padding: 0 2px; line-height: 1; flex-shrink: 0; }
+        .variation-delete-btn:hover { color: var(--pink); }
+        .variation-edit-btn { background: none; border: none; color: var(--mid-grey); font-size: 11px; cursor: pointer; padding: 0 2px; line-height: 1; flex-shrink: 0; }
+        .variation-edit-btn:hover { color: var(--navy); }
+        .variation-popup-footer { border-top: 2px solid var(--light-grey); padding: 10px 14px; flex-shrink: 0; }
+        .variation-add-btn {
+            font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            background: none; border: 1.5px dashed var(--light-grey); color: var(--mid-grey); padding: 7px 14px; cursor: pointer; width: 100%; transition: all 0.1s;
+        }
+        .variation-add-btn:hover { border-color: var(--navy); color: var(--navy); }
+        .variation-add-form { display: none; }
+        .variation-add-form.open { display: block; }
+        .variation-add-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+        /* PREVIEW HIGHLIGHT */
+        .prev-segment { border-radius: 2px; transition: background 0.12s, color 0.12s; }
+        .prev-segment.highlighted { background: var(--pink); color: var(--white); padding: 0 2px; }
 
         /* MARKBOOKS */
         .markbook-card {
@@ -491,7 +555,7 @@
 
 <div class="app-header">
     <div>
-        <p class="app-header-label">Year 8 Technologies</p>
+        <p class="app-header-label">Year 8 Technologies Term 1</p>
         <h1 class="app-header-title">App-etite Feedback</h1>
     </div>
 </div>
@@ -765,6 +829,18 @@ const EXTRA_PRAISE = {
     text: 'Throughout this assessment, you engaged with each task with genuine curiosity and care. Your overall effort and commitment to producing quality work was evident throughout, and it was great to see.'
 };
 
+const INSUFFICIENT_EVIDENCE = {
+    q0:  'For your Gantt chart, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q1:  'For your CARP analysis, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q2:  'For your mood board, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q4:  'For the spreadsheet tasks, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q5a: 'For the food presentation research task, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q5b: 'For the food presentation techniques task, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q6:  'For your user stories, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q7:  'For your design criteria, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+    q8:  'For your wireframe designs and digital tools work, there was not sufficient evidence to support a mark, as you left this question blank or did not submit clear evidence of your work. In the future, ensure you attempt every question to the best of your ability and double-check your submissions.',
+};
+
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
@@ -776,7 +852,9 @@ let singlePraiseOptions = [];
 let singleImprovementSelections = null; // null = auto (<=3); Set = manual picker active
 let bulkStudents = [];
 let bulkPraiseSelections = {};
+let bulkPraiseVariationSelections = {}; // studentIdx -> { praiseId: varId }
 let bulkImprovementSelections = {}; // studentIdx -> Set of selected improvement indices
+let bulkVariationSelections  = {}; // studentIdx -> { groupId: varId }
 let bulkComments = {};   // firstName -> comment string, used by markbooks
 let markbookStudents = [];
 
@@ -803,6 +881,322 @@ function getGroup(gid) {
     const o = loadOverrides()[gid];
     if (!o) return base;
     return { ...base, improvement: o.improvement ?? base.improvement, praise: o.praise ?? base.praise };
+}
+
+// ═══════════════════════════════════════
+// VARIATION SYSTEM
+// ═══════════════════════════════════════
+
+let activePopup = { studentIdx: null, groupId: null, canExclude: false };
+let varTooltipEl = null;
+
+function loadUserVariations(groupId) {
+    try { return JSON.parse(localStorage.getItem(`variations_${groupId}`) || '[]'); }
+    catch { return []; }
+}
+function saveUserVariation(groupId, title, text) {
+    const vars = loadUserVariations(groupId);
+    vars.push({ id: `u_${Date.now()}`, title, text });
+    localStorage.setItem(`variations_${groupId}`, JSON.stringify(vars));
+}
+function deleteUserVariation(groupId, varId) {
+    const vars = loadUserVariations(groupId).filter(v => v.id !== varId);
+    localStorage.setItem(`variations_${groupId}`, JSON.stringify(vars));
+}
+function updateUserVariation(groupId, varId, title, text) {
+    const vars = loadUserVariations(groupId).map(v => v.id === varId ? { ...v, title, text } : v);
+    localStorage.setItem(`variations_${groupId}`, JSON.stringify(vars));
+}
+function getVariationsForGroup(groupId) {
+    return [
+        { id: 'default',      title: 'Default',              text: getGroup(groupId)?.improvement || '' },
+        { id: 'insufficient', title: 'Insufficient Evidence', text: INSUFFICIENT_EVIDENCE[groupId] || '' },
+        ...loadUserVariations(groupId),
+    ];
+}
+function getVariationText(groupId, varId) {
+    if (!varId || varId === 'default') return getGroup(groupId)?.improvement || '';
+    if (varId === 'exclude') return null;
+    if (varId === 'insufficient') return INSUFFICIENT_EVIDENCE[groupId] || '';
+    const found = loadUserVariations(groupId).find(v => v.id === varId);
+    return found ? found.text : getGroup(groupId)?.improvement || '';
+}
+function getVariationLabel(groupId, varId) {
+    if (!varId || varId === 'default') return 'Default';
+    if (varId === 'exclude') return 'Excluded';
+    if (varId === 'insufficient') return 'Insufficient Evidence';
+    const found = loadUserVariations(groupId).find(v => v.id === varId);
+    return found ? found.title : 'Custom';
+}
+function showVarTooltip(event) {
+    if (!varTooltipEl) {
+        varTooltipEl = document.createElement('div');
+        varTooltipEl.className = 'var-tooltip';
+        document.body.appendChild(varTooltipEl);
+    }
+    const el = event.currentTarget;
+    varTooltipEl.textContent = el.dataset.varlabel || '';
+    varTooltipEl.classList.add('visible');
+    const r = el.getBoundingClientRect();
+    varTooltipEl.style.left = r.left + 'px';
+    varTooltipEl.style.top = (r.bottom + 5) + 'px';
+}
+function hideVarTooltip() {
+    if (varTooltipEl) varTooltipEl.classList.remove('visible');
+}
+function buildImpChipHtml(studentIdx, pi, grp, totalImps) {
+    const varId    = (bulkVariationSelections[studentIdx] || {})[grp.id] || 'default';
+    const varLabel = getVariationLabel(grp.id, varId);
+    const isExcluded   = varId === 'exclude';
+    const hasVariation = varId !== 'default' && !isExcluded;
+    const canExclude   = totalImps > 3;
+    const cls = ['bulk-imp-chip', isExcluded ? 'excluded' : 'active', hasVariation ? 'has-variation' : ''].filter(Boolean).join(' ');
+    const badge = hasVariation ? `<span class="chip-var-badge">${varLabel}</span>` : '';
+    const safeLabel = grp.label.replace(/"/g, '&quot;');
+    const safeVar   = varLabel.replace(/"/g, '&quot;');
+    return `<button class="${cls}" data-ipi="${pi}" data-grouplabel="${safeLabel}" data-varlabel="${safeVar}"
+        onmouseenter="showVarTooltip(event); highlightImpSegment(${studentIdx},'${grp.id}')"
+        onmouseleave="hideVarTooltip(); unhighlightSegments(${studentIdx})"
+        onclick="openVariationPopup(event,${studentIdx},${pi},'${grp.id}',${canExclude})"
+    >${grp.label}${badge}</button>`;
+}
+function refreshImpChips(studentIdx) {
+    const student = bulkStudents[studentIdx];
+    if (!student) return;
+    const container = document.getElementById(`bulk-imp-${studentIdx}`);
+    if (!container) return;
+    const allImps = IMP_GROUPS.filter(g => g.needsImprovement(student.marks));
+    container.innerHTML = allImps.map((grp, pi) => buildImpChipHtml(studentIdx, pi, grp, allImps.length)).join('');
+}
+function buildPopupList(listEl, studentIdx, groupId, canExclude) {
+    const currentVarId = (bulkVariationSelections[studentIdx] || {})[groupId] || 'default';
+    listEl.innerHTML = '';
+    if (canExclude) {
+        const excDiv = document.createElement('div');
+        excDiv.className = 'variation-item' + (currentVarId === 'exclude' ? ' selected' : '');
+        excDiv.innerHTML = `<div class="variation-item-header"><div class="variation-item-name">Exclude from comment</div></div><div class="variation-item-text">This improvement will not appear in the generated comment.</div>`;
+        excDiv.onclick = () => selectVariation(studentIdx, groupId, 'exclude');
+        listEl.appendChild(excDiv);
+    }
+    getVariationsForGroup(groupId).forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'variation-item' + (currentVarId === v.id ? ' selected' : '');
+        const isUser = v.id.startsWith('u_');
+        div.innerHTML = `
+            <div class="variation-item-header">
+                <div class="variation-item-name">${v.title}</div>
+                ${isUser ? `<div style="display:flex;gap:4px;"><button class="variation-edit-btn" onclick="startEditVariation(event,'imp','${groupId}','${v.id}')">&#9998;</button><button class="variation-delete-btn" onclick="deleteVariationItem(event,'${groupId}','${v.id}')">&#10005;</button></div>` : ''}
+            </div>
+            <div class="variation-item-text">To improve, ${v.text}.</div>`;
+        div.onclick = e => { if (!e.target.classList.contains('variation-delete-btn') && !e.target.classList.contains('variation-edit-btn')) selectVariation(studentIdx, groupId, v.id); };
+        listEl.appendChild(div);
+    });
+}
+
+function buildPraisePopupList(listEl, studentIdx, praiseIdx, praiseId, defaultText) {
+    const currentVarId = (bulkPraiseVariationSelections[studentIdx] || {})[praiseId] || 'default';
+    const isSelected = bulkPraiseSelections[studentIdx] === praiseIdx;
+    listEl.innerHTML = '';
+    const deselectDiv = document.createElement('div');
+    deselectDiv.className = 'variation-item' + (!isSelected ? ' selected' : '');
+    deselectDiv.innerHTML = `<div class="variation-item-header"><div class="variation-item-name">Deselect</div></div><div class="variation-item-text">Remove this praise statement from the comment.</div>`;
+    deselectDiv.onclick = () => selectPraiseVariation(studentIdx, praiseIdx, praiseId, '__deselect__');
+    listEl.appendChild(deselectDiv);
+    getPraiseVariationsForGroup(praiseId, defaultText).forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'variation-item' + (isSelected && currentVarId === v.id ? ' selected' : '');
+        const isUser = v.id.startsWith('p_');
+        div.innerHTML = `
+            <div class="variation-item-header">
+                <div class="variation-item-name">${v.title}</div>
+                ${isUser ? `<div style="display:flex;gap:4px;"><button class="variation-edit-btn" onclick="startEditVariation(event,'praise','${praiseId}','${v.id}')">&#9998;</button><button class="variation-delete-btn" onclick="deletePraiseVariationItem(event,'${praiseId}','${v.id}')">&#10005;</button></div>` : ''}
+            </div>
+            <div class="variation-item-text">${v.text}</div>`;
+        div.onclick = e => { if (!e.target.classList.contains('variation-delete-btn') && !e.target.classList.contains('variation-edit-btn')) selectPraiseVariation(studentIdx, praiseIdx, praiseId, v.id); };
+        listEl.appendChild(div);
+    });
+}
+
+function openPraiseVariationPopup(event, studentIdx, praiseIdx, praiseId, defaultText) {
+    event.stopPropagation();
+    hideVarTooltip();
+    activePopup = { type: 'praise', studentIdx, praiseIdx, praiseId, defaultText, canExclude: false };
+    const popup = document.getElementById('variation-popup');
+    const overlay = document.getElementById('variation-overlay');
+    document.getElementById('var-popup-title').textContent = event.currentTarget.dataset.grouplabel || praiseId;
+    buildPraisePopupList(document.getElementById('var-popup-list'), studentIdx, praiseIdx, praiseId, defaultText);
+    document.getElementById('var-add-form').classList.remove('open');
+    document.getElementById('var-add-btn').style.display = '';
+    document.getElementById('var-add-title-input').value = '';
+    document.getElementById('var-add-text-input').value = '';
+    const r = event.currentTarget.getBoundingClientRect();
+    const pw = 320, ph = 440;
+    let left = r.left, top = r.bottom + 6;
+    if (left + pw > window.innerWidth  - 10) left = window.innerWidth  - pw - 10;
+    if (top  + ph > window.innerHeight - 10) top  = Math.max(10, r.top - ph - 6);
+    popup.style.left = left + 'px'; popup.style.top = top + 'px';
+    overlay.classList.add('open'); popup.classList.add('open');
+}
+
+function selectPraiseVariation(studentIdx, praiseIdx, praiseId, varId) {
+    if (varId === '__deselect__') {
+        delete bulkPraiseSelections[studentIdx];
+    } else {
+        bulkPraiseSelections[studentIdx] = praiseIdx;
+        if (!bulkPraiseVariationSelections[studentIdx]) bulkPraiseVariationSelections[studentIdx] = {};
+        bulkPraiseVariationSelections[studentIdx][praiseId] = varId;
+    }
+    const praiseContainer = document.getElementById(`bulk-praise-${studentIdx}`);
+    if (praiseContainer) {
+        praiseContainer.querySelectorAll('.bulk-praise-chip').forEach((chip, ci) => {
+            chip.classList.toggle('active', bulkPraiseSelections[studentIdx] === ci);
+        });
+    }
+    closeVariationPopup();
+    updateBulkCardComment(studentIdx);
+}
+
+function deletePraiseVariationItem(event, praiseId, varId) {
+    event.stopPropagation();
+    deleteUserPraiseVariation(praiseId, varId);
+    const { studentIdx, praiseIdx, defaultText } = activePopup;
+    if ((bulkPraiseVariationSelections[studentIdx] || {})[praiseId] === varId) {
+        bulkPraiseVariationSelections[studentIdx][praiseId] = 'default';
+        updateBulkCardComment(studentIdx);
+    }
+    buildPraisePopupList(document.getElementById('var-popup-list'), studentIdx, praiseIdx, praiseId, defaultText);
+}
+function openVariationPopup(event, studentIdx, pi, groupId, canExclude) {
+    event.stopPropagation();
+    hideVarTooltip();
+    activePopup = { studentIdx, groupId, canExclude };
+    const popup = document.getElementById('variation-popup');
+    const overlay = document.getElementById('variation-overlay');
+    const grp = IMP_GROUPS.find(g => g.id === groupId);
+    document.getElementById('var-popup-title').textContent = grp ? grp.label : groupId;
+    buildPopupList(document.getElementById('var-popup-list'), studentIdx, groupId, canExclude);
+    document.getElementById('var-add-form').classList.remove('open');
+    document.getElementById('var-add-btn').style.display = '';
+    document.getElementById('var-add-title-input').value = '';
+    document.getElementById('var-add-text-input').value = '';
+    const r = event.currentTarget.getBoundingClientRect();
+    const pw = 320, ph = 440;
+    let left = r.left, top = r.bottom + 6;
+    if (left + pw > window.innerWidth  - 10) left = window.innerWidth  - pw - 10;
+    if (top  + ph > window.innerHeight - 10) top  = Math.max(10, r.top - ph - 6);
+    popup.style.left = left + 'px'; popup.style.top = top + 'px';
+    overlay.classList.add('open'); popup.classList.add('open');
+}
+function closeVariationPopup() {
+    document.getElementById('variation-popup').classList.remove('open');
+    document.getElementById('variation-overlay').classList.remove('open');
+    activePopup = { studentIdx: null, groupId: null, canExclude: false, editingVarId: null };
+}
+function selectVariation(studentIdx, groupId, varId) {
+    if (!bulkVariationSelections[studentIdx]) bulkVariationSelections[studentIdx] = {};
+    bulkVariationSelections[studentIdx][groupId] = varId;
+    closeVariationPopup();
+    updateBulkCardComment(studentIdx);
+    refreshImpChips(studentIdx);
+}
+function showAddVariationForm() {
+    activePopup.editingVarId = null;
+    document.getElementById('var-add-form').classList.add('open');
+    document.getElementById('var-add-btn').style.display = 'none';
+    document.getElementById('var-form-save-btn').textContent = 'Save';
+    document.getElementById('var-add-title-input').value = '';
+    document.getElementById('var-add-text-input').value = '';
+    document.getElementById('var-add-title-input').focus();
+}
+function cancelAddVariation() {
+    activePopup.editingVarId = null;
+    document.getElementById('var-add-form').classList.remove('open');
+    document.getElementById('var-add-btn').style.display = '';
+    document.getElementById('var-form-save-btn').textContent = 'Save';
+}
+function startEditVariation(event, type, id, varId) {
+    event.stopPropagation();
+    activePopup.editingVarId = varId;
+    activePopup.editingVarType = type;
+    activePopup.editingId = id;
+    const vars = type === 'praise' ? loadUserPraiseVariations(id) : loadUserVariations(id);
+    const v = vars.find(v => v.id === varId);
+    if (!v) return;
+    document.getElementById('var-add-title-input').value = v.title;
+    document.getElementById('var-add-text-input').value = v.text;
+    document.getElementById('var-add-form').classList.add('open');
+    document.getElementById('var-add-btn').style.display = 'none';
+    document.getElementById('var-form-save-btn').textContent = 'Update';
+    document.getElementById('var-add-title-input').focus();
+}
+function saveNewVariation() {
+    const title = document.getElementById('var-add-title-input').value.trim();
+    const text  = document.getElementById('var-add-text-input').value.trim();
+    if (!title || !text) return;
+    const { type, groupId, praiseId, praiseIdx, studentIdx, canExclude, defaultText, editingVarId, editingVarType, editingId } = activePopup;
+    if (editingVarId) {
+        if (editingVarType === 'praise') {
+            updateUserPraiseVariation(editingId, editingVarId, title, text);
+            cancelAddVariation();
+            buildPraisePopupList(document.getElementById('var-popup-list'), studentIdx, praiseIdx, praiseId, defaultText);
+        } else {
+            updateUserVariation(editingId, editingVarId, title, text);
+            cancelAddVariation();
+            buildPopupList(document.getElementById('var-popup-list'), studentIdx, groupId, canExclude);
+        }
+        updateBulkCardComment(studentIdx);
+        if (editingVarType !== 'praise') refreshImpChips(studentIdx);
+    } else {
+        if (type === 'praise') {
+            if (!praiseId) return;
+            saveUserPraiseVariation(praiseId, title, text);
+            cancelAddVariation();
+            buildPraisePopupList(document.getElementById('var-popup-list'), studentIdx, praiseIdx, praiseId, defaultText);
+        } else {
+            if (!groupId) return;
+            saveUserVariation(groupId, title, text);
+            cancelAddVariation();
+            buildPopupList(document.getElementById('var-popup-list'), studentIdx, groupId, canExclude);
+        }
+    }
+}
+function deleteVariationItem(event, groupId, varId) {
+    event.stopPropagation();
+    deleteUserVariation(groupId, varId);
+    const { studentIdx, canExclude } = activePopup;
+    if ((bulkVariationSelections[studentIdx] || {})[groupId] === varId) {
+        bulkVariationSelections[studentIdx][groupId] = 'default';
+        updateBulkCardComment(studentIdx);
+        refreshImpChips(studentIdx);
+    }
+    buildPopupList(document.getElementById('var-popup-list'), studentIdx, groupId, canExclude);
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeVariationPopup(); });
+function initVariationPopup() {
+    const overlay = document.createElement('div');
+    overlay.id = 'variation-overlay'; overlay.className = 'variation-popup-overlay';
+    overlay.onclick = closeVariationPopup;
+    document.body.appendChild(overlay);
+    const popup = document.createElement('div');
+    popup.id = 'variation-popup'; popup.className = 'variation-popup';
+    popup.innerHTML = `
+        <div class="variation-popup-header">
+            <span class="variation-popup-title" id="var-popup-title"></span>
+            <button class="variation-popup-close" onclick="closeVariationPopup()">&#10005;</button>
+        </div>
+        <div class="variation-popup-list" id="var-popup-list"></div>
+        <div class="variation-popup-footer">
+            <div class="variation-add-form" id="var-add-form">
+                <input type="text" class="text-input" id="var-add-title-input" placeholder="Variation title (e.g. Partial Attempt)" style="font-size:13px;padding:8px 10px;">
+                <textarea class="text-input" id="var-add-text-input" placeholder="Improvement text (without 'To improve,')..." style="min-height:60px;margin-top:8px;font-size:12px;padding:8px 10px;"></textarea>
+                <div class="variation-add-actions">
+                    <button class="save-btn" id="var-form-save-btn" onclick="saveNewVariation()">Save</button>
+                    <button class="reset-btn" onclick="cancelAddVariation()">Cancel</button>
+                </div>
+            </div>
+            <button class="variation-add-btn" id="var-add-btn" onclick="showAddVariationForm()">+ Add Variation</button>
+        </div>`;
+    document.body.appendChild(popup);
 }
 
 // ═══════════════════════════════════════
@@ -853,15 +1247,101 @@ const connectors = ['Also,', 'Additionally,', 'Further to this,', 'It would also
 
 function buildImprovements(items) {
     if (!items.length) return '';
-    if (items.length === 1) return `To improve, ${items[0]}.`;
-    let text = `To improve, ${items[0]}.`;
-    for (let i = 1; i < items.length; i++) {
-        text += ` ${connectors[Math.min(i - 1, connectors.length - 1)]} ${items[i]}.`;
-    }
-    return text;
+    const parts = items.map((item, i) => {
+        if (/^[A-Z]/.test(item)) return item; // standalone sentence — no prefix
+        return i === 0
+            ? `To improve, ${item}.`
+            : `${connectors[Math.min(i - 1, connectors.length - 1)]} ${item}.`;
+    });
+    return parts.join(' ');
 }
 
-function buildComment(name, marks, praiseText, improvementSelections) {
+// ── Praise variation helpers ──────────────────────────────────────────────────
+function loadUserPraiseVariations(praiseId) {
+    try { return JSON.parse(localStorage.getItem(`praise_var_${praiseId}`) || '[]'); }
+    catch { return []; }
+}
+function saveUserPraiseVariation(praiseId, title, text) {
+    const vars = loadUserPraiseVariations(praiseId);
+    vars.push({ id: `p_${Date.now()}`, title, text });
+    localStorage.setItem(`praise_var_${praiseId}`, JSON.stringify(vars));
+}
+function deleteUserPraiseVariation(praiseId, varId) {
+    const vars = loadUserPraiseVariations(praiseId).filter(v => v.id !== varId);
+    localStorage.setItem(`praise_var_${praiseId}`, JSON.stringify(vars));
+}
+function updateUserPraiseVariation(praiseId, varId, title, text) {
+    const vars = loadUserPraiseVariations(praiseId).map(v => v.id === varId ? { ...v, title, text } : v);
+    localStorage.setItem(`praise_var_${praiseId}`, JSON.stringify(vars));
+}
+function getPraiseVariationsForGroup(praiseId, defaultText) {
+    return [
+        { id: 'default', title: 'Default', text: defaultText },
+        ...loadUserPraiseVariations(praiseId),
+    ];
+}
+function getPraiseText(praiseId, varId, defaultText) {
+    if (!varId || varId === 'default') return defaultText;
+    const found = loadUserPraiseVariations(praiseId).find(v => v.id === varId);
+    return found ? found.text : defaultText;
+}
+function getPraiseVariationLabel(praiseId, varId) {
+    if (!varId || varId === 'default') return 'Default';
+    const found = loadUserPraiseVariations(praiseId).find(v => v.id === varId);
+    return found ? found.title : 'Custom';
+}
+
+// ── Preview highlight helpers ─────────────────────────────────────────────────
+function highlightImpSegment(studentIdx, groupId) {
+    const body = document.getElementById(`card-body-${studentIdx}`);
+    if (!body) return;
+    body.querySelectorAll('.prev-segment').forEach(s => s.classList.remove('highlighted'));
+    const seg = body.querySelector(`.prev-imp[data-groupid="${groupId}"]`);
+    if (seg) seg.classList.add('highlighted');
+}
+function highlightPraiseSegment(studentIdx, praiseIdx) {
+    if (bulkPraiseSelections[studentIdx] !== praiseIdx) return;
+    const body = document.getElementById(`card-body-${studentIdx}`);
+    if (!body) return;
+    body.querySelectorAll('.prev-segment').forEach(s => s.classList.remove('highlighted'));
+    const seg = body.querySelector('.prev-praise');
+    if (seg) seg.classList.add('highlighted');
+}
+function unhighlightSegments(studentIdx) {
+    const body = document.getElementById(`card-body-${studentIdx}`);
+    if (!body) return;
+    body.querySelectorAll('.prev-segment').forEach(s => s.classList.remove('highlighted'));
+}
+
+// ── HTML preview builder ──────────────────────────────────────────────────────
+function buildImprovementsHtml(impItems) {
+    if (!impItems.length) return '';
+    const parts = impItems.map((item, i) => {
+        const isStandalone = /^[A-Z]/.test(item.text);
+        const prefix = isStandalone ? '' : (i === 0 ? 'To improve, ' : `${connectors[Math.min(i - 1, connectors.length - 1)]} `);
+        const suffix = isStandalone ? '' : '.';
+        return `${prefix}<span class="prev-segment prev-imp" data-groupid="${item.groupId}">${item.text}</span>${suffix}`;
+    });
+    return parts.join(' ');
+}
+
+function buildBulkPreviewHtml(marks, praiseText, variationSelections) {
+    const allImprovements = IMP_GROUPS.filter(g => g.needsImprovement(marks));
+    const impItems = allImprovements
+        .filter(g => !(variationSelections && variationSelections[g.id] === 'exclude'))
+        .map(g => ({
+            groupId: g.id,
+            text: variationSelections ? getVariationText(g.id, variationSelections[g.id]) : getGroup(g.id).improvement,
+        }))
+        .filter(item => item.text);
+    const parts = [];
+    if (praiseText) parts.push(`<span class="prev-segment prev-praise">${praiseText}</span>`);
+    if (impItems.length) parts.push(buildImprovementsHtml(impItems));
+    if (!parts.length) return '<em style="color:var(--mid-grey);">No praise or improvement statements generated for this student.</em>';
+    return parts.join(' ');
+}
+
+function buildComment(name, marks, praiseText, improvementSelections, variationSelections) {
     const grade = gradeFromMarks(marks);
     const gd = gradeData[grade];
     const opening = 'This term, we explored the interfaces of existing apps, explored and manipulated spreadsheet survey data, looked at how digital interfaces influence healthy eating choices, and created wireframe designs that support better food choices for students.';
@@ -880,9 +1360,14 @@ function buildComment(name, marks, praiseText, improvementSelections) {
     }
 
     const allImprovements = IMP_GROUPS.filter(g => g.needsImprovement(marks));
-    const improvements = (improvementSelections instanceof Set)
-        ? allImprovements.filter((_, i) => improvementSelections.has(i)).map(g => getGroup(g.id).improvement).filter(Boolean)
-        : allImprovements.map(g => getGroup(g.id).improvement).filter(Boolean);
+    const improvements = allImprovements
+        .filter((g, idx) => {
+            if (variationSelections && variationSelections[g.id] === 'exclude') return false;
+            if (improvementSelections instanceof Set) return improvementSelections.has(idx);
+            return true;
+        })
+        .map(g => variationSelections ? getVariationText(g.id, variationSelections[g.id]) : getGroup(g.id).improvement)
+        .filter(Boolean);
 
     const closing = `Overall, ${gd.article} ${gd.closing} effort and result.`;
     const parts = [opening, achievement];
@@ -892,11 +1377,12 @@ function buildComment(name, marks, praiseText, improvementSelections) {
     return parts.join(' ');
 }
 
-function buildBulkPreview(name, marks, praiseText, improvementSelections) {
+function buildBulkPreview(name, marks, praiseText, improvementSelections, variationSelections) {
     const allImprovements = IMP_GROUPS.filter(g => g.needsImprovement(marks));
-    const improvements = (improvementSelections instanceof Set)
-        ? allImprovements.filter((_, i) => improvementSelections.has(i)).map(g => getGroup(g.id).improvement).filter(Boolean)
-        : allImprovements.map(g => getGroup(g.id).improvement).filter(Boolean);
+    const improvements = allImprovements
+        .filter(g => !(variationSelections && variationSelections[g.id] === 'exclude'))
+        .map(g => variationSelections ? getVariationText(g.id, variationSelections[g.id]) : getGroup(g.id).improvement)
+        .filter(Boolean);
     const parts = [];
     if (praiseText) parts.push(praiseText);
     if (improvements.length) parts.push(buildImprovements(improvements));
@@ -1295,7 +1781,9 @@ function renderBulkPreview() {
     const cardsEl = document.getElementById('bulk-cards');
     const copyAllBtn = document.getElementById('copy-all-btn');
     bulkPraiseSelections = {};
+    bulkPraiseVariationSelections = {};
     bulkImprovementSelections = {};
+    bulkVariationSelections = {};
     bulkComments = {};
 
     if (!bulkStudents.length) {
@@ -1308,32 +1796,32 @@ function renderBulkPreview() {
 
     bulkStudents.forEach((student, i) => {
         const available = availablePraiseForMarks(student.marks);
-        const chips = available.map((opt, pi) =>
-            `<button class="bulk-praise-chip" data-pi="${pi}" onclick="selectBulkPraise(${i},${pi})">${opt.label}</button>`
-        ).join('');
+        const praiseChipsHtml = available.map((opt, pi) => {
+            const safeLabel = opt.label.replace(/"/g, '&quot;');
+            const safeVar = getPraiseVariationLabel(opt.id, 'default').replace(/"/g, '&quot;');
+            const safeText = opt.text.replace(/'/g, "\\'");
+            return `<button class="bulk-praise-chip" data-pi="${pi}" data-grouplabel="${safeLabel}" data-varlabel="${safeVar}"
+                onmouseenter="showVarTooltip(event); highlightPraiseSegment(${i},${pi})"
+                onmouseleave="hideVarTooltip(); unhighlightSegments(${i})"
+                onclick="openPraiseVariationPopup(event,${i},${pi},'${opt.id}','${safeText}')"
+            >${opt.label}</button>`;
+        }).join('');
 
         const card = document.createElement('div');
         card.className = 'comment-card';
 
-        // Improvement picker for >3 improvements
         const allImps = IMP_GROUPS.filter(g => g.needsImprovement(student.marks));
-        if (allImps.length >= 3 && !(bulkImprovementSelections[i] instanceof Set)) {
-            bulkImprovementSelections[i] = new Set(allImps.map((_, idx) => idx));
-        }
-        const impChips = allImps.length > 3
-            ? allImps.map((grp, pi) =>
-                `<button class="bulk-imp-chip active" data-ipi="${pi}" onclick="selectBulkImprovement(${i},${pi})">${grp.label}</button>`
-              ).join('')
-            : '';
-        const impPickerHtml = allImps.length >= 3 ? `
+        const impChipsHtml = allImps.map((grp, pi) => buildImpChipHtml(i, pi, grp, allImps.length)).join('');
+        const impLabel = allImps.length > 3 ? 'Improvement statements — click to change variation or exclude' : 'Improvement statements — click to change variation';
+        const impPickerHtml = allImps.length > 0 ? `
             <div class="bulk-imp-wrap">
-                <span class="bulk-imp-wrap-label">More than 3 improvements -- select the most important</span>
-                <div class="bulk-imp-options" id="bulk-imp-${i}" data-allimps='${JSON.stringify(allImps.map(g=>({id:g.id,label:g.label})))}'>${impChips}</div>
+                <span class="bulk-imp-wrap-label">${impLabel}</span>
+                <div class="bulk-imp-options" id="bulk-imp-${i}">${impChipsHtml}</div>
             </div>` : '';
 
-        // Show only praise/improvement in card; store full comment for markbooks
-        const baseComment = buildComment(student.firstName, student.marks, null, bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null);
-        const basePreview = buildBulkPreview(student.firstName, student.marks, null, bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null);
+        const varSel = {};
+        const baseComment = buildComment(student.firstName, student.marks, null, null, varSel);
+        const basePreviewHtml = buildBulkPreviewHtml(student.marks, null, varSel);
         bulkComments[student.firstName.toLowerCase()] = baseComment;
 
         card.innerHTML = `
@@ -1343,9 +1831,9 @@ function renderBulkPreview() {
             ${impPickerHtml}
             <div class="bulk-praise-wrap">
                 <span class="bulk-praise-wrap-label">Praise highlight (optional)</span>
-                <div class="bulk-praise-options" id="bulk-praise-${i}" data-available='${JSON.stringify(available).replace(/'/g, "&#39;")}'>${chips}</div>
+                <div class="bulk-praise-options" id="bulk-praise-${i}" data-available='${JSON.stringify(available).replace(/'/g, "&#39;")}'>${praiseChipsHtml}</div>
             </div>
-            <div class="comment-card-body" id="card-body-${i}">${basePreview}</div>
+            <div class="comment-card-body" id="card-body-${i}">${basePreviewHtml}</div>
             <div class="markbook-reminder">&#9432;&nbsp; Full personalised comment available in the Markbooks tab.</div>
             <div class="comment-card-footer">
                 <button class="action-btn" id="card-copy-${i}" onclick="copyCard(${i})">&#10064;&nbsp; Copy</button>
@@ -1354,55 +1842,42 @@ function renderBulkPreview() {
     });
 }
 
-function selectBulkImprovement(studentIdx, localIdx) {
-    const sel = bulkImprovementSelections[studentIdx];
-    if (!(sel instanceof Set)) return;
-    if (sel.has(localIdx)) { sel.delete(localIdx); } else { sel.add(localIdx); }
-    const container = document.getElementById(`bulk-imp-${studentIdx}`);
-    if (container) {
-        container.querySelectorAll('.bulk-imp-chip').forEach(chip => {
-            chip.classList.toggle('active', sel.has(parseInt(chip.dataset.ipi)));
-        });
-    }
-    updateBulkCardComment(studentIdx);
+function getPraiseTextForStudent(studentIdx, available) {
+    const praiseIdx = bulkPraiseSelections[studentIdx];
+    if (praiseIdx === undefined || !available[praiseIdx]) return null;
+    const opt = available[praiseIdx];
+    const varId = (bulkPraiseVariationSelections[studentIdx] || {})[opt.id] || 'default';
+    return getPraiseText(opt.id, varId, opt.text);
 }
 
 function updateBulkCardComment(studentIdx) {
     const student = bulkStudents[studentIdx];
     const container = document.getElementById(`bulk-praise-${studentIdx}`);
     const available = container ? JSON.parse(container.dataset.available || '[]') : [];
-    const praiseText = bulkPraiseSelections[studentIdx] !== undefined ? available[bulkPraiseSelections[studentIdx]]?.text : null;
-    const impSel = bulkImprovementSelections[studentIdx] instanceof Set ? bulkImprovementSelections[studentIdx] : null;
-    bulkComments[student.firstName.toLowerCase()] = buildComment(student.firstName, student.marks, praiseText, impSel);
+    const praiseText = getPraiseTextForStudent(studentIdx, available);
+    const varSel = bulkVariationSelections[studentIdx] || {};
+    bulkComments[student.firstName.toLowerCase()] = buildComment(student.firstName, student.marks, praiseText, null, varSel);
     const bodyEl = document.getElementById(`card-body-${studentIdx}`);
-    if (bodyEl) bodyEl.textContent = buildBulkPreview(student.firstName, student.marks, praiseText, impSel);
-    if (markbookStudents.length) renderMarkbooks();
-}
-
-function selectBulkPraise(studentIdx, localPraiseIdx) {
-    const container = document.getElementById(`bulk-praise-${studentIdx}`);
-    if (!container) return;
-    const available = JSON.parse(container.dataset.available || '[]');
-
-    if (bulkPraiseSelections[studentIdx] === localPraiseIdx) {
-        delete bulkPraiseSelections[studentIdx];
-    } else {
-        bulkPraiseSelections[studentIdx] = localPraiseIdx;
+    if (bodyEl) bodyEl.innerHTML = buildBulkPreviewHtml(student.marks, praiseText, varSel);
+    const praiseContainer = document.getElementById(`bulk-praise-${studentIdx}`);
+    if (praiseContainer) {
+        praiseContainer.querySelectorAll('.bulk-praise-chip').forEach((chip, ci) => {
+            const opt = available[ci];
+            const vId = opt ? ((bulkPraiseVariationSelections[studentIdx] || {})[opt.id] || 'default') : 'default';
+            chip.dataset.varlabel = opt ? getPraiseVariationLabel(opt.id, vId) : 'Default';
+            chip.classList.toggle('active', bulkPraiseSelections[studentIdx] === ci);
+        });
     }
-    container.querySelectorAll('.bulk-praise-chip').forEach((chip, ci) => {
-        chip.classList.toggle('active', bulkPraiseSelections[studentIdx] === ci);
-    });
-
-    updateBulkCardComment(studentIdx);
+    if (markbookStudents.length) renderMarkbooks();
 }
 
 function getBulkComment(i) {
     const student = bulkStudents[i];
     const container = document.getElementById(`bulk-praise-${i}`);
     const available = container ? JSON.parse(container.dataset.available || '[]') : [];
-    const praiseText = bulkPraiseSelections[i] !== undefined ? available[bulkPraiseSelections[i]]?.text : null;
-    const impSel = bulkImprovementSelections[i] instanceof Set ? bulkImprovementSelections[i] : null;
-    return buildBulkPreview(student.firstName, student.marks, praiseText, impSel);
+    const praiseText = getPraiseTextForStudent(i, available);
+    const varSel = bulkVariationSelections[i] || {};
+    return buildBulkPreview(student.firstName, student.marks, praiseText, null, varSel);
 }
 
 function copyCard(i) {
@@ -1523,6 +1998,7 @@ function copyMbComment(i) {
 // INIT
 // ═══════════════════════════════════════
 
+initVariationPopup();
 buildSkillsTable();
 buildConfigTable();
 buildSinglePraiseOptions();
