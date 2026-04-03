@@ -680,6 +680,10 @@
 
         <!-- MARKBOOKS -->
         <div id="markbooks-inputs" style="display:none;">
+            <div class="note-box" style="border-left-color: var(--pink); margin-bottom: 0; border-bottom: none;">
+                <p class="note-label" style="color:var(--pink);">Please check results manually</p>
+                <p>Scores are calculated automatically from pasted data. Always verify totals against your markbook before submitting.</p>
+            </div>
             <div class="section-head">
                 <span class="section-label">Step 01</span>
                 <h2 class="section-title">Paste Markbook Data</h2>
@@ -738,6 +742,7 @@
         <div id="markbooks-preview" style="display:none;">
             <div class="bulk-header">
                 <div class="bulk-count"><span id="mb-count-num">0</span> Students</div>
+                <button class="action-btn" id="copy-all-scores-btn" onclick="copyAllScores()" disabled>&#10064;&nbsp; Copy All Scores</button>
             </div>
             <div id="markbook-cards">
                 <div class="bulk-empty">Paste markbook data on the left.</div>
@@ -2025,12 +2030,15 @@ function buildMarkbookComment(firstName) {
 
 function renderMarkbooks() {
     const cardsEl = document.getElementById('markbook-cards');
+    const copyAllScoresBtn = document.getElementById('copy-all-scores-btn');
     document.getElementById('mb-count-num').textContent = markbookStudents.length;
 
     if (!markbookStudents.length) {
         cardsEl.innerHTML = '<div class="bulk-empty">Paste markbook data on the left.</div>';
+        if (copyAllScoresBtn) copyAllScoresBtn.disabled = true;
         return;
     }
+    if (copyAllScoresBtn) copyAllScoresBtn.disabled = false;
 
     cardsEl.innerHTML = '';
     markbookStudents.forEach((student, i) => {
@@ -2084,9 +2092,14 @@ function copyMbComment(i) {
     });
 }
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
+function copyAllScores() {
+    const rows = markbookStudents.map(s => `${s.ku}\t${s.pp}`).join('\n');
+    navigator.clipboard.writeText(rows).then(() => {
+        const btn = document.getElementById('copy-all-scores-btn');
+        btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy All Scores'; btn.classList.remove('copied'); }, 2200);
+    });
+}
 
 initVariationPopup();
 buildSkillsTable();
