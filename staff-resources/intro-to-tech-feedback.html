@@ -704,8 +704,8 @@
             </div>
             <div class="note-box">
                 <p class="note-label">Column mapping</p>
-                <p><strong>Column 1:</strong> Knowledge and Understanding (DIGITAL TECH) - out of 9, used as-is.<br>
-                <strong>Columns 2-3:</strong> Knowledge and Understanding (DIGITAL TECH) - flattened (7-9 = 2, 4-6 = 1, below 4 = 0). KU total out of 13.<br>
+                <p><strong>Columns 1-2:</strong> Knowledge and Understanding (DIGITAL TECH) - flattened (7-9 = 2, 4-6 = 1, below 4 = 0). Combined max of 4.<br>
+                <strong>Column 3:</strong> Knowledge and Understanding (DIGITAL TECH) - out of 9, used as-is. KU total out of 13.<br>
                 <strong>Columns 4-6:</strong> Processes and Production Skills (DIGITAL TECH) - summed, out of 27.</p>
             </div>
         </div>
@@ -2006,7 +2006,7 @@ function parseMarkbooks() {
         if (!scores.length) return;
 
         // KU: column 1 as-is (out of 9), columns 2-3 flattened to 0-2 each -> total out of 13
-        const ku = (scores[0] ?? 0) + flattenMark(scores[1] ?? 0) + flattenMark(scores[2] ?? 0);
+        const ku = flattenMark(scores[0] ?? 0) + flattenMark(scores[1] ?? 0) + (scores[2] ?? 0);
         // PPS: columns 4-6 summed -> out of 27
         const pp = scores.slice(3, 6).reduce((s, v) => s + v, 0);
 
