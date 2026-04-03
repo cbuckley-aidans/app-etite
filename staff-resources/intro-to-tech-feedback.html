@@ -1948,12 +1948,8 @@ function updateBulkCardComment(studentIdx) {
 }
 
 function getBulkComment(i) {
-    const student = bulkStudents[i];
-    const container = document.getElementById(`bulk-praise-${i}`);
-    const available = container ? JSON.parse(container.dataset.available || '[]') : [];
-    const praiseText = getPraiseTextForStudent(i, available);
-    const varSel = bulkVariationSelections[i] || {};
-    return buildBulkPreview(student.firstName, student.marks, praiseText, null, varSel);
+    const body = document.getElementById(`card-body-${i}`);
+    return body ? body.innerText : '';
 }
 
 function copyCard(i) {
@@ -2016,6 +2012,17 @@ function parseMarkbooks() {
     renderMarkbooks();
 }
 
+function buildMarkbookComment(firstName) {
+    const bulkStudent = bulkStudents.find(s => s.firstName.toLowerCase() === firstName.toLowerCase());
+    if (!bulkStudent) return null;
+    const studentIdx = bulkStudents.indexOf(bulkStudent);
+    const container = document.getElementById(`bulk-praise-${studentIdx}`);
+    const available = container ? JSON.parse(container.dataset.available || '[]') : [];
+    const praiseText = getPraiseTextForStudent(studentIdx, available);
+    const varSel = bulkVariationSelections[studentIdx] || {};
+    return buildComment(bulkStudent.firstName, bulkStudent.marks, praiseText, null, varSel);
+}
+
 function renderMarkbooks() {
     const cardsEl = document.getElementById('markbook-cards');
     document.getElementById('mb-count-num').textContent = markbookStudents.length;
@@ -2029,7 +2036,7 @@ function renderMarkbooks() {
     markbookStudents.forEach((student, i) => {
         const card = document.createElement('div');
         card.className = 'markbook-card';
-        const liveComment = bulkComments[student.firstName.toLowerCase()] || null;
+        const liveComment = buildMarkbookComment(student.firstName);
         const commentHtml = liveComment
             ? `<div class="markbook-comment" id="mb-comment-${i}">${liveComment}</div>`
             : `<div class="markbook-no-comment">No bulk import comment found for ${student.firstName}. Run Bulk Import first.</div>`;
@@ -2069,9 +2076,8 @@ function copyMbScores(i) {
 }
 
 function copyMbComment(i) {
-    const s = markbookStudents[i];
-    if (!s.comment) return;
-    navigator.clipboard.writeText(s.comment).then(() => {
+    const comment = document.getElementById(`mb-comment-${i}`)?.textContent || '';
+    navigator.clipboard.writeText(comment).then(() => {
         const btn = document.getElementById(`mb-comment-copy-${i}`);
         btn.innerHTML = '&#10003;&nbsp; Copied!'; btn.classList.add('copied');
         setTimeout(() => { btn.innerHTML = '&#10064;&nbsp; Copy Comment'; btn.classList.remove('copied'); }, 2200);
